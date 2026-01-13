@@ -92,6 +92,7 @@ const SearchIcon = ({ className = "" }: { className?: string }) => (
   </svg>
 );
 
+
 const Navbar: React.FC = () => {
   // =========================
   // THEME (INDO)
@@ -111,12 +112,12 @@ const Navbar: React.FC = () => {
   const [activeGroupId, setActiveGroupId] = useState<string | null>(
     "exclusive"
   );
-  const [activeGroupItemId, setActiveGroupItemId] = useState<string | null>(
-    null
-  );
-  const [activeGroupSubItemId, setActiveGroupSubItemId] = useState<
-    string | null
-  >(null);
+//   const [activeGroupItemId, setActiveGroupItemId] = useState<string | null>(
+//     null
+//   );
+//   const [activeGroupSubItemId, setActiveGroupSubItemId] = useState<
+//     string | null
+//   >(null);
 
 
   // For desktop hover panels
@@ -549,12 +550,12 @@ const menuGroups: MenuGroup[] = [
                                 key={group.id}
                                 onMouseEnter={() => {
                                   setActiveGroupId(group.id);
-                                  setActiveGroupItemId(
-                                    group.items[0]?.id ?? null
-                                  );
-                                  setActiveGroupSubItemId(
-                                    group.items[0]?.subItems[0]?.id ?? null
-                                  );
+                                //   setActiveGroupItemId(
+                                //     group.items[0]?.id ?? null
+                                //   );
+                                //   setActiveGroupSubItemId(
+                                //     group.items[0]?.subItems[0]?.id ?? null
+                                //   );
                                 }}
                                 className={`w-full flex items-center justify-between px-4 py-3 text-sm font-semibold border-b border-[#2A2C33]
       ${active ? "bg-[#E02C2C] text-white" : "text-white hover:bg-white/5"}`}
