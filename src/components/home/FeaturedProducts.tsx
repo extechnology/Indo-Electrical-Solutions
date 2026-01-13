@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from "react";
 import { Heart, ChevronLeft, ChevronRight, Star } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 type Product = {
   id: number;
@@ -20,9 +21,9 @@ const formatINR = (value: number) => {
 };
 
 const FeaturedProducts: React.FC = () => {
+  const navigate = useNavigate();
   const products: Product[] = useMemo(
     () => [
-      
       {
         id: 1,
         title: "Croma 5 Litre Instant Geyser with Efficient Heating Technology",
@@ -33,7 +34,7 @@ const FeaturedProducts: React.FC = () => {
         rating: 4.0,
       },
       {
-        id:2,
+        id: 2,
         title: "Honeywell Air Touch V3 Air Purifier with 3D Air Flow (White)",
         image:
           "https://images.unsplash.com/photo-1617531653332-bd46c24f2068?q=80&w=900&auto=format&fit=crop",
@@ -226,6 +227,7 @@ const FeaturedProducts: React.FC = () => {
 
                 {/* CTA */}
                 <button
+                  onClick={() => navigate(`/detail`)}
                   className="
                     mt-4 w-full
                     rounded-xl
