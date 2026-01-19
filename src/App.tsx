@@ -7,24 +7,25 @@ import Footer from "./common/Footer";
 const Home = lazy(() => import("./pages/Home"));
 const BrandPage = lazy(() => import("./pages/BrandPage"));
 const DetailPage = lazy(() => import("./pages/DetailPage"));
+const Brochure = lazy(() => import("./pages/Brochure"));
+const NotFound = lazy(() => import("./pages/NotFound"));
 
 function App() {
   return (
     <>
-      <Navbar />
       <Router>
+        <Navbar />
         <Suspense fallback={<Loader />}>
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/brand/:brandId" element={<BrandPage />} />
-            <Route
-              path="/detail"
-              element={<DetailPage />}
-            />
+            <Route path="/detail" element={<DetailPage />} />
+            <Route path="/brochure" element={<Brochure />} />
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </Suspense>
+        <Footer />
       </Router>
-      <Footer />
     </>
   );
 }

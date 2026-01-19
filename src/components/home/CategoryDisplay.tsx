@@ -10,6 +10,7 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
+import { useCategories } from "../../hooks/useCategories";
 
 type CategoryItem = {
   id: number;
@@ -78,6 +79,8 @@ const categoryData: CategoryItem[] = [
 const CategoryDisplay: React.FC = () => {
   const [scrollPosition, setScrollPosition] = useState(0);
   const scrollContainerRef = React.useRef<HTMLDivElement>(null);
+  const { data:categories } = useCategories();
+  console.log(categories)
 
   const scroll = (direction: "left" | "right") => {
     if (scrollContainerRef.current) {
@@ -96,7 +99,7 @@ const CategoryDisplay: React.FC = () => {
   };
 
   return (
-    <section className="w-full bg-linear-to-br from-black via-slate-950 to-black py-12 md:py-16 relative overflow-hidden">
+    <section className="w-full bg-linear-to-br from-[#0B0B0D] via-[#0B0B0D] to-[#0B0B0D] py-18 md:py-12 relative overflow-hidden">
       {/* Animated Background Elements */}
       <div className="absolute inset-0 opacity-20">
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-500/30 rounded-full blur-3xl animate-pulse"></div>
@@ -110,7 +113,7 @@ const CategoryDisplay: React.FC = () => {
         {/* Header */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
           <div>
-            <h2 className="text-white font-bold text-2xl sm:text-3xl lg:text-4xl tracking-tight">
+            <h2 className="text-white font-bold text-xl sm:text-2xl lg:text-2xl tracking-tight">
               Shop by Category
             </h2>
             <p className="text-slate-400 text-sm sm:text-base mt-2">
@@ -144,7 +147,7 @@ const CategoryDisplay: React.FC = () => {
           {/* Scrollable Container */}
           <div
             ref={scrollContainerRef}
-            className="overflow-x-auto overflow-y-hidden scrollbar-hide pb-4"
+            className="overflow-x-auto overflow-y-hidden py-1 scrollbar-hide "
             style={{
               scrollbarWidth: "none",
               msOverflowStyle: "none",
@@ -155,7 +158,7 @@ const CategoryDisplay: React.FC = () => {
               {categoryData.map((category, index) => (
                 <button
                   key={category.id}
-                  className="group relative shrink-0 w-[140px] h-[140px] sm:w-[160px] sm:h-[160px]"
+                  className="group relative shrink-0 w-[110px] h-[110px] sm:w-[130px] sm:h-[130px]"
                   style={{
                     animation: `fadeInUp 0.5s ease-out ${index * 0.1}s both`,
                   }}
@@ -184,7 +187,7 @@ const CategoryDisplay: React.FC = () => {
 
                     {/* Content */}
                     <div className="relative z-10 flex flex-col items-center justify-center text-center">
-                      <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-slate-800/50 group-hover:bg-slate-700/50 transition-all duration-300 group-hover:scale-110 group-hover:rotate-3">
+                      <div className="mb-3 flex h-8 w-8 items-center justify-center rounded-xl bg-slate-800/50 group-hover:bg-slate-700/50 transition-all duration-300 group-hover:scale-110 group-hover:rotate-3">
                         <div className="text-slate-300 group-hover:text-white transition-colors duration-300">
                           {category.icon}
                         </div>
