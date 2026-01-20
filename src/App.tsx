@@ -4,6 +4,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Loader from "./common/Loader";
 import Navbar from "./common/Navbar";
 import Footer from "./common/Footer";
+import ScrollToTop from "./common/ScrollToTop";
 
 const Home = lazy(() => import("./pages/Home"));
 const BrandPage = lazy(() => import("./pages/BrandPage"));
@@ -30,6 +31,7 @@ function App() {
           </Routes>
         </Suspense>
         <Footer />
+        <ScrollToTop />
       </Router>
     </>
   );

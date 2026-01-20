@@ -1,4 +1,6 @@
 import React from "react";
+import { Link } from "react-router-dom";
+
 
 type LaunchCard = {
   id: number;
@@ -152,7 +154,7 @@ const LatestLaunches: React.FC = () => {
                   )}
 
                   {/* CTA */}
-                  <button
+                  <Link to={`/exclusive`}
                     className="
                       mt-5 inline-flex items-center justify-center
                       rounded-xl bg-[#E02C2C]
@@ -161,7 +163,7 @@ const LatestLaunches: React.FC = () => {
                     "
                   >
                     {item.cta}
-                  </button>
+                  </Link>
 
                   {/* Note text (optional like screenshot small note) */}
                   {item.id === 1 && (

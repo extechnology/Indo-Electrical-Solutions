@@ -1,26 +1,27 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useCategories } from "../hooks/useCategories";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate ,useLocation,NavLink} from "react-router-dom";
+import SearchDropdown from "./SearchDropDown";
 
 
-type Product = {
-  id: string;
-  name: string;
-};
+// type Product = {
+//   id: string;
+//   name: string;
+// };
 
-type MenuGroup = {
-  id: string;
-  title: string;
-  items: {
-    id: string;
-    name: string;
-    subItems: {
-      id: string;
-      name: string;
-      products: Product[];
-    }[];
-  }[];
-};
+// type MenuGroup = {
+//   id: string;
+//   title: string;
+//   items: {
+//     id: string;
+//     name: string;
+//     subItems: {
+//       id: string;
+//       name: string;
+//       products: Product[];
+//     }[];
+//   }[];
+// };
 
 type ApiCategory = {
   id: number;
@@ -106,7 +107,7 @@ const navItems = [
   },
   {
     name: "Indo Exclusive",
-    link: "/indo-exclusive",
+    link: "/exclusive",
   },
   {
     name: "Top Brands",
@@ -127,14 +128,16 @@ const Navbar: React.FC = () => {
   const menuBtnRef = useRef<HTMLButtonElement | null>(null);
   const { data: categories } = useCategories();
   console.log(categories, "categories");
-  const [active, setActive] = useState("Home");
+  // const [active, setActive] = useState("Home");
   const [menuOpen, setMenuOpen] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+
 
   const [activeGroupId, setActiveGroupId] = useState<string | null>(null);
-  const [activeGroupItemId, setActiveGroupItemId] = useState<string | null>(
-    null,
-  );
+  // const [activeGroupItemId, setActiveGroupItemId] = useState<string | null>(
+  //   null,
+  // );
   const [activeGroupSubItemId, setActiveGroupSubItemId] = useState<
     string | null
   >(null);
@@ -217,78 +220,98 @@ const Navbar: React.FC = () => {
     [],
   );
 
-  const menuGroups: MenuGroup[] = [
-    {
-      id: "exclusive",
-      title: "Exclusive at INDO",
-      items: [
-        {
-          id: "exclusive-offers",
-          name: "Exclusive Offers",
-          subItems: [
-            {
-              id: "seasonal-offers",
-              name: "Seasonal Deals",
-              products: [
-                { id: "p1", name: "Festival Combo Packs" },
-                { id: "p2", name: "Lighting Discounts" },
-              ],
-            },
-          ],
-        },
-        {
-          id: "indo-services",
-          name: "INDO Services",
-          subItems: [
-            {
-              id: "support",
-              name: "Support & Repair",
-              products: [
-                { id: "p1", name: "Installation Service" },
-                { id: "p2", name: "Repair Service" },
-              ],
-            },
-          ],
-        },
-      ],
-    },
-    {
-      id: "brands",
-      title: "Top Brands",
-      items: [
-        {
-          id: "premium-brands",
-          name: "Premium Brands",
-          subItems: [
-            {
-              id: "brand-list",
-              name: "Brands",
-              products: [
-                { id: "p1", name: "Havells" },
-                { id: "p2", name: "Syska" },
-                { id: "p3", name: "Philips" },
-                { id: "p4", name: "Anchor" },
-              ],
-            },
-          ],
-        },
-        {
-          id: "budget-brands",
-          name: "Budget Brands",
-          subItems: [
-            {
-              id: "budget-list",
-              name: "Brands",
-              products: [
-                { id: "p1", name: "Wipro" },
-                { id: "p2", name: "Crompton" },
-              ],
-            },
-          ],
-        },
-      ],
-    },
-  ];
+  // const menuGroups: MenuGroup[] = [
+  //   {
+  //     id: "exclusive",
+  //     title: "Exclusive at INDO",
+  //     items: [
+  //       {
+  //         id: "exclusive-offers",
+  //         name: "Exclusive Offers",
+  //         subItems: [
+  //           {
+  //             id: "seasonal-offers",
+  //             name: "Seasonal Deals",
+  //             products: [
+  //               { id: "p1", name: "Festival Combo Packs" },
+  //               { id: "p2", name: "Lighting Discounts" },
+  //             ],
+  //           },
+  //         ],
+  //       },
+  //       {
+  //         id: "indo-services",
+  //         name: "INDO Services",
+  //         subItems: [
+  //           {
+  //             id: "support",
+  //             name: "Support & Repair",
+  //             products: [
+  //               { id: "p1", name: "Installation Service" },
+  //               { id: "p2", name: "Repair Service" },
+  //             ],
+  //           },
+  //         ],
+  //       },
+  //     ],
+  //   },
+  //   {
+  //     id: "brands",
+  //     title: "Top Brands",
+  //     items: [
+  //       {
+  //         id: "premium-brands",
+  //         name: "Premium Brands",
+  //         subItems: [
+  //           {
+  //             id: "brand-list",
+  //             name: "Brands",
+  //             products: [
+  //               { id: "p1", name: "Havells" },
+  //               { id: "p2", name: "Syska" },
+  //               { id: "p3", name: "Philips" },
+  //               { id: "p4", name: "Anchor" },
+  //             ],
+  //           },
+  //         ],
+  //       },
+  //       {
+  //         id: "budget-brands",
+  //         name: "Budget Brands",
+  //         subItems: [
+  //           {
+  //             id: "budget-list",
+  //             name: "Brands",
+  //             products: [
+  //               { id: "p1", name: "Wipro" },
+  //               { id: "p2", name: "Crompton" },
+  //             ],
+  //           },
+  //         ],
+  //       },
+  //     ],
+  //   },
+  // ];
+
+
+  useEffect(() => {
+    // ✅ Close dropdown on navigation
+    setMenuOpen(false);
+
+    // ✅ Optional: reset category hover states (clean UX)
+    setActiveCategoryId(null);
+    setActiveSubCategoryId(null);
+
+    setActiveGroupId(null);
+    // setActiveGroupItemId(null);
+    setActiveGroupSubItemId(null);
+
+    // ✅ Optional: reset mobile step if you use it
+    setMobileStep("CATEGORIES");
+    setMobileCategoryId(null);
+    setMobileSubCategoryId(null);
+  }, [location.pathname]);
+
 
   useEffect(() => {
     if (!menuOpen) return;
@@ -369,41 +392,33 @@ const Navbar: React.FC = () => {
 
             <div className="hidden md:flex items-center gap-2 bg-white/5 border border-white/10 px-3 rounded-xl backdrop-blur-xl shadow-lg">
               {navItems.map((item) => (
-                <Link
+                <NavLink
                   key={item.name}
                   to={item.link}
-                  onClick={() => setActive(item.name)}
-                  className={`relative px-4 my-2 rounded-xl text-sm font-medium transition-all duration-300 inline-flex items-center
+                  className={({ isActive }) =>
+                    `relative px-4 my-2 rounded-xl text-sm font-semibold transition-all duration-300
       ${
-        active === item.name
+        isActive
           ? "text-white shadow-md"
           : "text-white/70 hover:text-white hover:bg-white/5"
-      }
-    `}
+      }`
+                  }
                 >
-                  {item.name}
+                  {({ isActive }) => (
+                    <>
+                      {item.name}
 
-                  {active === item.name && (
-                    <span className="absolute left-3 right-3 -bottom-[2px] h-[0.5px] rounded-full bg-[#E02C2C]" />
+                      {isActive && (
+                        <span className="absolute left-3 right-3 -bottom-[2px] h-[0.5px] rounded-full bg-[#E02C2C]" />
+                      )}
+                    </>
                   )}
-                </Link>
+                </NavLink>
               ))}
             </div>
 
             <div className="flex-1">
-              <div className="relative">
-                <input
-                  placeholder="What are you looking for?"
-                  className="w-full rounded-xl bg-white px-4 py-2 pr-11 text-sm font-medium text-[#0B0B0D] outline-none ring-0 placeholder:text-gray-400"
-                />
-                <button
-                  type="button"
-                  className="absolute right-2 top-1/2 -translate-y-1/2 rounded-lg bg-[#E02C2C] p-1 text-white hover:bg-[#B91C1C] transition"
-                  aria-label="Search"
-                >
-                  <SearchIcon />
-                </button>
-              </div>
+              <SearchDropdown />
             </div>
           </div>
         </div>
@@ -421,7 +436,7 @@ const Navbar: React.FC = () => {
                   <div className="hidden lg:grid lg:grid-cols-[360px_1fr_1fr]">
                     <div className="border-r border-[#2A2C33] bg-[#121216]">
                       <div className="p-4">
-                        <div className="rounded-lg border border-[#2A2C33] bg-[#0B0B0D] overflow-hidden">
+                        {/* <div className="rounded-lg border border-[#2A2C33] bg-[#0B0B0D] overflow-hidden">
                           {menuGroups.map((group) => {
                             const active = group.id === activeGroupId;
 
@@ -451,7 +466,7 @@ const Navbar: React.FC = () => {
                               </button>
                             );
                           })}
-                        </div>
+                        </div> */}
                       </div>
 
                       {/* Main Category */}
@@ -472,7 +487,7 @@ const Navbar: React.FC = () => {
                                     String(cat.children[0]?.id ?? ""),
                                   );
                                   setActiveGroupId(null);
-                                  setActiveGroupItemId(null);
+                                  // setActiveGroupItemId(null);
                                   setActiveGroupSubItemId(null);
                                 }}
                                 className={`w-full flex items-center justify-between gap-3 px-4 py-3 text-left text-sm font-semibold transition border-b border-[#2A2C33] last:border-b-0
@@ -494,12 +509,12 @@ const Navbar: React.FC = () => {
                       <div className="p-4">
                         {activeGroupId ? (
                           <>
-                            <p className="text-white font-extrabold text-base mb-3">
+                            {/* <p className="text-white font-extrabold text-base mb-3">
                               {menuGroups.find((g) => g.id === activeGroupId)
                                 ?.title || "Group"}
-                            </p>
+                            </p> */}
 
-                            <div className="rounded-lg border border-[#2A2C33] bg-[#121216] overflow-hidden">
+                            {/* <div className="rounded-lg border border-[#2A2C33] bg-[#121216] overflow-hidden">
                               {menuGroups
                                 .find((g) => g.id === activeGroupId)
                                 ?.items.map((item) => {
@@ -521,7 +536,7 @@ const Navbar: React.FC = () => {
                                     </button>
                                   );
                                 })}
-                            </div>
+                            </div> */}
                           </>
                         ) : (
                           <>
@@ -559,14 +574,14 @@ const Navbar: React.FC = () => {
                       <div className="p-4">
                         {activeGroupId ? (
                           <>
-                            <p className="text-white font-extrabold text-base mb-3">
+                            {/* <p className="text-white font-extrabold text-base mb-3">
                               {menuGroups
                                 .find((g) => g.id === activeGroupId)
                                 ?.items.find((i) => i.id === activeGroupItemId)
                                 ?.name || "Items"}
-                            </p>
+                            </p> */}
 
-                            <div className="rounded-lg border border-[#2A2C33] bg-[#121216] p-3">
+                            {/* <div className="rounded-lg border border-[#2A2C33] bg-[#121216] p-3">
                               <div className="grid grid-cols-1 gap-2">
                                 {menuGroups
                                   .find((g) => g.id === activeGroupId)
@@ -587,12 +602,12 @@ const Navbar: React.FC = () => {
                                     )),
                                   )}
                               </div>
-                            </div>
+                            </div> */}
 
                             <div className="mt-3 flex items-center justify-between">
                               <p className="text-xs text-[#9AA3AF]">
                                 Showing items for{" "}
-                                <span className="text-white">
+                                {/* <span className="text-white">
                                   {
                                     menuGroups
                                       .find((g) => g.id === activeGroupId)
@@ -600,7 +615,7 @@ const Navbar: React.FC = () => {
                                         (i) => i.id === activeGroupItemId,
                                       )?.name
                                   }
-                                </span>
+                                </span> */}
                               </p>
                               <button className="text-sm font-bold text-[#E02C2C] hover:text-white transition">
                                 View All

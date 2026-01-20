@@ -105,7 +105,7 @@ const Hero: React.FC = () => {
               Trusted since 1965
             </p>
 
-            <h1 className="mt-5 text-4xl font-extrabold tracking-tight text-white sm:text-5xl lg:text-6xl">
+            <h1 className="mt-5 text-4xl font-medium tracking-tight text-white sm:text-5xl lg:text-6xl">
               {slides[activeIndex].title}
             </h1>
 
@@ -113,7 +113,7 @@ const Hero: React.FC = () => {
               {slides[activeIndex].subtitle}
             </p>
 
-            <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:items-center">
+            {/* <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:items-center">
               <a
                 href={slides[activeIndex].ctaLink}
                 className="inline-flex w-fit items-center justify-center rounded-xl bg-[#E02C2C] px-6 py-3 text-sm font-bold text-white hover:bg-[#B91C1C] transition"
@@ -127,7 +127,7 @@ const Hero: React.FC = () => {
               >
                 Learn More
               </a>
-            </div>
+            </div> */}
 
             {/* Indicators */}
             <div className="mt-10 flex items-center gap-2">
