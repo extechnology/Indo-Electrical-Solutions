@@ -90,7 +90,7 @@ const FeaturedProducts: React.FC = () => {
         {/* Header */}
         <div className="flex items-center justify-between gap-4">
           <div>
-            <h2 className="text-white text-xl sm:text-2xl font-extrabold">
+            <h2 className="text-white text-xl sm:text-2xl font-medium">
               Featured Products
             </h2>
             <p className="mt-1 text-sm text-[#9AA3AF]">
@@ -102,14 +102,14 @@ const FeaturedProducts: React.FC = () => {
           <div className="hidden sm:flex items-center gap-2">
             <button
               onClick={() => scroll("left")}
-              className="rounded-xl border border-[#2A2C33] bg-[#121216] p-2 text-white hover:border-[#E02C2C] transition"
+              className="rounded-full border border-[#2A2C33] bg-[#121216] p-2 text-white hover:border-[#E02C2C] transition"
               aria-label="Scroll left"
             >
               <ChevronLeft className="h-5 w-5" />
             </button>
             <button
               onClick={() => scroll("right")}
-              className="rounded-xl border border-[#2A2C33] bg-[#121216] p-2 text-white hover:border-[#E02C2C] transition"
+              className="rounded-full border border-[#2A2C33] bg-[#121216] p-2 text-white hover:border-[#E02C2C] transition"
               aria-label="Scroll right"
             >
               <ChevronRight className="h-5 w-5" />
@@ -139,7 +139,7 @@ const FeaturedProducts: React.FC = () => {
                 group relative
                 w-[260px] shrink-0
                 sm:w-auto
-                rounded-2xl
+                rounded-md
                 border border-[#2A2C33]
                 bg-[#121216]
                 overflow-hidden
@@ -149,7 +149,7 @@ const FeaturedProducts: React.FC = () => {
               "
             >
               {/* Wishlist */}
-              <button
+              {/* <button
                 onClick={() => toggleWishlist(p.id)}
                 className="
                   absolute right-3 top-3 z-20
@@ -169,7 +169,7 @@ const FeaturedProducts: React.FC = () => {
                       : "text-white"
                   }`}
                 />
-              </button>
+              </button> */}
 
               {/* Image */}
               <div className="relative h-[210px] w-full bg-[#0B0B0D] flex items-center justify-center">

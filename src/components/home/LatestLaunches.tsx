@@ -42,7 +42,7 @@ const LatestLaunches: React.FC = () => {
       <div className="mx-auto max-w-7xl px-4">
         {/* Title */}
         <div className="flex items-center justify-between">
-          <h2 className="text-white text-xl sm:text-2xl font-extrabold">
+          <h2 className="text-white text-xl sm:text-2xl font-medium">
             Latest Launches
           </h2>
         </div>
@@ -53,7 +53,7 @@ const LatestLaunches: React.FC = () => {
             <div
               key={item.id}
               className="
-                relative overflow-hidden rounded-2xl
+                relative overflow-hidden rounded-md
                 border border-[#2A2C33]
                 bg-[#121216]
                 min-h-[230px]

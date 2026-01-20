@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useCategories } from "../hooks/useCategories";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+
 
 type Product = {
   id: string;
@@ -128,6 +129,7 @@ const Navbar: React.FC = () => {
   console.log(categories, "categories");
   const [active, setActive] = useState("Home");
   const [menuOpen, setMenuOpen] = useState(false);
+  const navigate = useNavigate();
 
   const [activeGroupId, setActiveGroupId] = useState<string | null>(null);
   const [activeGroupItemId, setActiveGroupItemId] = useState<string | null>(
@@ -346,16 +348,18 @@ const Navbar: React.FC = () => {
         <div className="mx-auto max-w-7xl px-4 py-2">
           <div className="flex h-16 items-center gap-3 ">
             <div className="flex items-center gap-3">
-              <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-[#121216] border border-[#2A2C33]">
-                <img src="/indo_logo2.png" alt="" />
-              </div>
+              <Link to="/">
+                <div className="flex h-16 w-16 items-center justify-center rounded-xl">
+                  <img src="/indo_logo2.png" alt="" />
+                </div>
+              </Link>
             </div>
 
             <button
               ref={menuBtnRef}
               type="button"
               onClick={() => setMenuOpen((v) => !v)}
-              className="ml-2 inline-flex items-center gap-2 rounded-xl border border-[#2A2C33] bg-[#121216] px-3 py-2 text-sm font-semibold text-white hover:border-[#E02C2C] transition"
+              className="ml-2 inline-flex items-center gap-2 rounded-xl border border-[#2A2C33] bg-[#121216] px-3 py-2 text-sm font-medium text-white hover:border-[#E02C2C] transition"
               aria-expanded={menuOpen}
               aria-label="Toggle Menu"
             >
@@ -363,13 +367,13 @@ const Navbar: React.FC = () => {
               <span className="hidden sm:inline">Menu</span>
             </button>
 
-            <div className="hidden md:flex items-center gap-2 bg-white/5 border border-white/10 px-3 rounded-2xl backdrop-blur-xl shadow-lg">
+            <div className="hidden md:flex items-center gap-2 bg-white/5 border border-white/10 px-3 rounded-xl backdrop-blur-xl shadow-lg">
               {navItems.map((item) => (
                 <Link
                   key={item.name}
                   to={item.link}
                   onClick={() => setActive(item.name)}
-                  className={`relative px-4 my-2 rounded-xl text-sm font-semibold transition-all duration-300 inline-flex items-center
+                  className={`relative px-4 my-2 rounded-xl text-sm font-medium transition-all duration-300 inline-flex items-center
       ${
         active === item.name
           ? "text-white shadow-md"
@@ -390,7 +394,7 @@ const Navbar: React.FC = () => {
               <div className="relative">
                 <input
                   placeholder="What are you looking for?"
-                  className="w-full rounded-xl bg-white px-4 py-2.5 pr-11 text-sm font-medium text-[#0B0B0D] outline-none ring-0 placeholder:text-gray-400"
+                  className="w-full rounded-xl bg-white px-4 py-2 pr-11 text-sm font-medium text-[#0B0B0D] outline-none ring-0 placeholder:text-gray-400"
                 />
                 <button
                   type="button"
@@ -413,11 +417,11 @@ const Navbar: React.FC = () => {
 
             <div className="absolute left-0 right-0 top-0 z-50">
               <div className="mx-auto max-w-7xl px-4 pb-4">
-                <div className="mt-3 overflow-hidden rounded-2xl border border-[#2A2C33] bg-[#0B0B0D] shadow-2xl">
+                <div className="mt-3 overflow-hidden rounded-xl border border-[#2A2C33] bg-[#0B0B0D] shadow-2xl">
                   <div className="hidden lg:grid lg:grid-cols-[360px_1fr_1fr]">
                     <div className="border-r border-[#2A2C33] bg-[#121216]">
                       <div className="p-4">
-                        <div className="rounded-xl border border-[#2A2C33] bg-[#0B0B0D] overflow-hidden">
+                        <div className="rounded-lg border border-[#2A2C33] bg-[#0B0B0D] overflow-hidden">
                           {menuGroups.map((group) => {
                             const active = group.id === activeGroupId;
 
@@ -450,11 +454,12 @@ const Navbar: React.FC = () => {
                         </div>
                       </div>
 
+                      {/* Main Category */}
                       <div className="px-4 pb-4">
                         <p className="text-white font-extrabold text-base mb-3">
                           Shop by Category
                         </p>
-                        <div className="rounded-xl border border-[#2A2C33] bg-[#0B0B0D] overflow-hidden">
+                        <div className="rounded-lg border border-[#2A2C33] bg-[#0B0B0D] overflow-hidden">
                           {mainCategories.map((cat) => {
                             const active = String(cat.id) === activeCategoryId;
 
@@ -484,6 +489,7 @@ const Navbar: React.FC = () => {
                       </div>
                     </div>
 
+                    {/* Sub Category */}
                     <div className="border-r border-[#2A2C33] bg-[#0B0B0D]">
                       <div className="p-4">
                         {activeGroupId ? (
@@ -493,7 +499,7 @@ const Navbar: React.FC = () => {
                                 ?.title || "Group"}
                             </p>
 
-                            <div className="rounded-xl border border-[#2A2C33] bg-[#121216] overflow-hidden">
+                            <div className="rounded-lg border border-[#2A2C33] bg-[#121216] overflow-hidden">
                               {menuGroups
                                 .find((g) => g.id === activeGroupId)
                                 ?.items.map((item) => {
@@ -523,7 +529,7 @@ const Navbar: React.FC = () => {
                               {activeMainCategory?.name || "Category"}
                             </p>
 
-                            <div className="rounded-xl border border-[#2A2C33] bg-[#121216] overflow-hidden">
+                            <div className="rounded-lg border border-[#2A2C33] bg-[#121216] overflow-hidden">
                               {subCategories.map((sub) => {
                                 const active =
                                   String(sub.id) === activeSubCategoryId;
@@ -548,6 +554,7 @@ const Navbar: React.FC = () => {
                       </div>
                     </div>
 
+                    {/* Leaf Category */}
                     <div className="bg-[#0B0B0D]">
                       <div className="p-4">
                         {activeGroupId ? (
@@ -559,7 +566,7 @@ const Navbar: React.FC = () => {
                                 ?.name || "Items"}
                             </p>
 
-                            <div className="rounded-xl border border-[#2A2C33] bg-[#121216] p-3">
+                            <div className="rounded-lg border border-[#2A2C33] bg-[#121216] p-3">
                               <div className="grid grid-cols-1 gap-2">
                                 {menuGroups
                                   .find((g) => g.id === activeGroupId)
@@ -570,12 +577,9 @@ const Navbar: React.FC = () => {
                                     subItem.products.map((product) => (
                                       <button
                                         key={product.id}
-                                        className="rounded-xl border border-transparent bg-[#0B0B0D] px-4 py-3 text-left text-sm font-semibold text-white hover:border-[#E02C2C] hover:bg-white/5 transition"
+                                        className="rounded-lg border border-transparent bg-[#0B0B0D] px-4 py-3 text-left text-sm font-semibold text-white hover:border-[#E02C2C] hover:bg-white/5 transition"
                                         onClick={() => {
-                                          console.log(
-                                            "Product clicked:",
-                                            product.name,
-                                          );
+                                          navigate(`/filter/${product.name}`);
                                         }}
                                       >
                                         {product.name}
@@ -609,14 +613,14 @@ const Navbar: React.FC = () => {
                               {activeSubCategory?.name || "Products"}
                             </p>
 
-                            <div className="rounded-xl border border-[#2A2C33] bg-[#121216] p-3">
+                            <div className="rounded-lg border border-[#2A2C33] bg-[#121216] p-3">
                               <div className="grid grid-cols-1 gap-2">
                                 {leafCategories.map((leaf) => (
                                   <button
                                     key={leaf.id}
-                                    className="rounded-xl border border-transparent bg-[#0B0B0D] px-4 py-3 text-left text-sm font-semibold text-white hover:border-[#E02C2C] hover:bg-white/5 transition"
+                                    className="rounded-lg border border-transparent bg-[#0B0B0D] px-4 py-3 text-left text-sm font-semibold text-white hover:border-[#E02C2C] hover:bg-white/5 transition"
                                     onClick={() => {
-                                      window.location.href = `/products?category=${leaf.slug}`;
+                                      navigate(`/filter/${leaf.slug}`);
                                     }}
                                   >
                                     {leaf.name}
@@ -641,6 +645,8 @@ const Navbar: React.FC = () => {
                       </div>
                     </div>
                   </div>
+
+                  {/* Mobile Menu */}
 
                   <div className="lg:hidden">
                     <div className="flex items-center justify-between border-b border-[#2A2C33] bg-[#121216] px-4 py-3">
@@ -751,7 +757,7 @@ const Navbar: React.FC = () => {
                                   <button
                                     key={leaf.id}
                                     onClick={() => {
-                                      window.location.href = `/products?category=${leaf.slug}`;
+                                      navigate(`/filter/${leaf.slug}`);
                                     }}
                                     className="rounded-xl border border-[#2A2C33] bg-[#0B0B0D] px-4 py-3 text-left text-sm font-semibold text-white hover:border-[#E02C2C] hover:bg-white/5 transition"
                                   >
