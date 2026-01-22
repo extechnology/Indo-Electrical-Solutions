@@ -171,7 +171,7 @@ const CategoryDisplay: React.FC = () => {
                 <button
                   key={category.id}
                   onClick={() => navigate(`/filter/${category.slug}`)}
-                  className="group relative shrink-0 w-[90px] h-[90px] sm:w-[110px] sm:h-[110px]"
+                  className="group cursor-pointer relative shrink-0 w-[90px] h-[90px] sm:w-[110px] sm:h-[110px]"
                   style={{
                     animation: `fadeInUp 0.5s ease-out ${index * 0.08}s both`,
                   }}

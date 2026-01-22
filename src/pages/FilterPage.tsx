@@ -34,8 +34,11 @@ type ApiProduct = {
   slug: string;
   description?: string;
 
-  price: string; // ✅ API gives string
+  price: string; 
   old_price?: string | null;
+
+  is_exclusive: boolean;
+  min_order_quantity: number;
 
   stock: number;
   is_active: boolean;
@@ -319,19 +322,6 @@ const FilterPage: React.FC = () => {
               ))}
             </select>
 
-            {/* Delivery (optional placeholder) */}
-            <select
-              value={selectedDelivery}
-              onChange={(e) => setSelectedDelivery(e.target.value as any)}
-              className="cursor-pointer rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs font-semibold text-white outline-none hover:bg-white/10 transition"
-            >
-              {["All", "Home Delivery", "Store Pickup"].map((d) => (
-                <option key={d} value={d} className="bg-[#0B0B0D]">
-                  Delivery Mode: {d}
-                </option>
-              ))}
-            </select>
-
             <button
               onClick={clearAll}
               className="rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs font-semibold text-white hover:bg-white/10 transition"
@@ -411,6 +401,14 @@ const FilterPage: React.FC = () => {
                       <span className="text-white/60">{p.category?.name}</span>
                     </div>
 
+                    <div>
+                      {p.description && (
+                        <p className="mt-2 text-xs text-white/50 line-clamp-2">
+                          {p.description}
+                        </p>
+                      )}
+                    </div>
+
                     {/* Price */}
                     <div className="mt-3 flex flex-wrap items-center gap-3">
                       <span className="text-2xl font-medium tracking-tight">
@@ -430,6 +428,14 @@ const FilterPage: React.FC = () => {
                       )}
                     </div>
 
+                    <div>
+                      {p.min_order_quantity && (
+                        <span className="text-xs text-white/50">
+                          Min Order Quantity: {p.min_order_quantity}
+                        </span>
+                      )}
+                    </div>
+
                     {/* Stock */}
                     <div className="mt-3 text-xs">
                       {outOfStock ? (
@@ -445,7 +451,7 @@ const FilterPage: React.FC = () => {
 
                     <div className="mt-5">
                       <span className="inline-flex items-center rounded-full bg-emerald-200 px-4 py-2 text-xs font-extrabold text-black">
-                        Premium Listing
+                        Order Now
                       </span>
                     </div>
                   </div>

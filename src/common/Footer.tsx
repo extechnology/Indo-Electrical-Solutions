@@ -70,7 +70,7 @@ const Footer: React.FC = () => {
         </div>
 
         {/* NEWSLETTER */}
-        <div className="mt-10 rounded-2xl border border-[#2A2C33] bg-[#121216] p-5 md:p-6">
+        {/* <div className="mt-10 rounded-2xl border border-[#2A2C33] bg-[#121216] p-5 md:p-6">
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
               <p className="text-white font-extrabold text-lg">
@@ -93,7 +93,7 @@ const Footer: React.FC = () => {
               </button>
             </div>
           </div>
-        </div>
+        </div> */}
 
         {/* LEGAL LINKS */}
         <div className="mt-10 flex flex-col gap-4 border-t border-[#2A2C33] pt-6 md:flex-row md:items-center md:justify-between">

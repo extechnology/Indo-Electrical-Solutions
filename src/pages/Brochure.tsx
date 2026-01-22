@@ -1,147 +1,93 @@
 import React, { useMemo, useState } from "react";
 import { Download, FileText, Search, ExternalLink } from "lucide-react";
+import { useBrands } from "../hooks/useBrands";
 
-type BrochureCategory =
-  | "All"
-  | "TV"
-  | "Refrigerator"
-  | "Washing Machine"
-  | "Air Conditioner"
-  | "Mobile"
-  | "Wiring & Cables"
-  | "Fans"
-  | "Sanitaryware";
+type SortMode = "Newest" | "Oldest" | "A-Z";
 
-type BrochureItem = {
-  id: string;
-  title: string;
-  brand: string;
-  category: Exclude<BrochureCategory, "All">;
-  year: number;
-  sizeMB: number;
-  pages: number;
-  format: "PDF";
-  description: string;
-  tags: string[];
-  brochureUrl: string; // ✅ your pdf url
+type BrandBrochure = {
+  id: number;
+  category: number;
+  category_name: string;
+  title: string | null;
+  brochure_file: string;
+  is_active: boolean;
 };
 
-const BROCHURES: BrochureItem[] = [
-  {
-    id: "b1",
-    title: "Premium LED TV Collection 2026",
-    brand: "INDO",
-    category: "TV",
-    year: 2026,
-    sizeMB: 8.4,
-    pages: 24,
-    format: "PDF",
-    description:
-      "Explore 4K UHD, Mini-LED, Smart TV features, and pricing tiers in one brochure.",
-    tags: ["4K", "Smart TV", "HDR"],
-    brochureUrl: "/brochures/tv-collection-2026.pdf",
-  },
-  {
-    id: "b2",
-    title: "Energy Efficient Refrigerators",
-    brand: "INDO",
-    category: "Refrigerator",
-    year: 2026,
-    sizeMB: 6.1,
-    pages: 18,
-    format: "PDF",
-    description:
-      "Frost-free, inverter technology, storage layouts, and recommended models.",
-    tags: ["Inverter", "Frost Free", "5 Star"],
-    brochureUrl: "/brochures/refrigerator-energy-efficient.pdf",
-  },
-  {
-    id: "b3",
-    title: "Electrical Wiring & Power Catalog",
-    brand: "INDO",
-    category: "Wiring & Cables",
-    year: 2025,
-    sizeMB: 4.7,
-    pages: 32,
-    format: "PDF",
-    description:
-      "Armoured cables, flexible cables, wiring safety, and installation guidance.",
-    tags: ["Armoured", "Flexible", "Safety"],
-    brochureUrl: "/brochures/wiring-power-catalog.pdf",
-  },
-  {
-    id: "b4",
-    title: "Fans & Appliances Lookbook",
-    brand: "INDO",
-    category: "Fans",
-    year: 2026,
-    sizeMB: 5.2,
-    pages: 20,
-    format: "PDF",
-    description:
-      "Designer fans, performance series, sweep sizes, and smart controls.",
-    tags: ["BLDC", "Remote", "Premium"],
-    brochureUrl: "/brochures/fans-appliances-2026.pdf",
-  },
-];
+type Brand = {
+  id: number;
+  name: string;
+  logo: string | null;
+  is_active: boolean;
+  brochures: BrandBrochure[];
+};
 
-const categories: BrochureCategory[] = [
-  "All",
-  "TV",
-  "Refrigerator",
-  "Washing Machine",
-  "Air Conditioner",
-  "Mobile",
-  "Wiring & Cables",
-  "Fans",
-  "Sanitaryware",
-];
+type UiBrochureItem = {
+  id: string;
+  title: string;
+  brandName: string;
+  brandLogo?: string | null;
 
-type SortMode = "Newest" | "Oldest" | "A-Z" | "Size (Small)" | "Size (Large)";
+  categoryName: string;
+  brochureUrl: string;
+};
 
 const Brochure: React.FC = () => {
+  const { data: brands = [], isLoading } = useBrands();
+
   const [query, setQuery] = useState("");
-  const [activeCategory, setActiveCategory] = useState<BrochureCategory>("All");
+  const [selectedBrand, setSelectedBrand] = useState<string>("All");
   const [sortMode, setSortMode] = useState<SortMode>("Newest");
+
+  // ✅ Flatten brands -> brochures list (dynamic)
+  const allBrochures: UiBrochureItem[] = useMemo(() => {
+    return (brands as Brand[])
+      .filter((brand) => brand.is_active)
+      .flatMap((brand) =>
+        (brand.brochures || [])
+          .filter((b) => b.is_active)
+          .map((b) => ({
+            id: `${brand.id}-${b.id}`,
+            title: b.title || `${brand.name} - ${b.category_name} Brochure`,
+            brandName: brand.name,
+            categoryName: b.category_name,
+            brandLogo: brand.logo,
+            brochureUrl: b.brochure_file,
+          })),
+      );
+  }, [brands]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
 
-    let list = BROCHURES.filter((b) => {
+    let list = allBrochures.filter((b) => {
       const matchesQuery =
         !q ||
         b.title.toLowerCase().includes(q) ||
-        b.brand.toLowerCase().includes(q) ||
-        b.category.toLowerCase().includes(q) ||
-        b.tags.some((t) => t.toLowerCase().includes(q));
+        b.brandName.toLowerCase().includes(q) ||
+        b.categoryName.toLowerCase().includes(q);
 
-      const matchesCategory =
-        activeCategory === "All" ? true : b.category === activeCategory;
+      const matchesBrand =
+        selectedBrand === "All" ? true : b.brandName === selectedBrand;
 
-      return matchesQuery && matchesCategory;
+      return matchesQuery && matchesBrand;
     });
 
     list = [...list].sort((a, b) => {
       switch (sortMode) {
-        case "Newest":
-          return b.year - a.year;
-        case "Oldest":
-          return a.year - b.year;
         case "A-Z":
           return a.title.localeCompare(b.title);
-        case "Size (Small)":
-          return a.sizeMB - b.sizeMB;
-        case "Size (Large)":
-          return b.sizeMB - a.sizeMB;
+        case "Oldest":
+          return a.id.localeCompare(b.id);
+        case "Newest":
         default:
-          return 0;
+          return b.id.localeCompare(a.id);
       }
     });
 
     return list;
-  }, [query, activeCategory, sortMode]);
+  }, [allBrochures, query, selectedBrand, sortMode]);
 
-  const totalCount = BROCHURES.length;
+  const totalCount = allBrochures.length;
 
   return (
     <div className="min-h-screen bg-[#070709] text-white">
@@ -150,7 +96,7 @@ const Brochure: React.FC = () => {
         <div className="absolute inset-0">
           <div className="absolute -top-28 -left-28 h-80 w-80 rounded-full bg-red-500/20 blur-3xl" />
           <div className="absolute -bottom-28 -right-28 h-80 w-80 rounded-full bg-white/10 blur-3xl" />
-          <div className="absolute inset-0 bg-gradient-to-b from-white/5 to-transparent" />
+          <div className="absolute inset-0 bg-linear-to-b from-white/5 to-transparent" />
         </div>
 
         <div className="relative mx-auto max-w-7xl px-4 py-10">
@@ -159,13 +105,12 @@ const Brochure: React.FC = () => {
               HOME / RESOURCES / BROCHURES
             </p>
 
-            <h1 className="text-2xl md:text-4xl font-extrabold leading-tight">
+            <h1 className="text-2xl md:text-4xl font-medium leading-tight">
               Download Product Brochures
             </h1>
 
             <p className="max-w-2xl text-sm md:text-base text-white/70">
-              Get the latest brochures for TVs, appliances, wiring solutions and
-              more — designed for quick product comparison and easy sharing.
+              Browse brand-wise brochures and download them instantly.
             </p>
 
             <div className="mt-6 grid grid-cols-1 gap-3 md:grid-cols-3">
@@ -175,25 +120,33 @@ const Brochure: React.FC = () => {
                 <input
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
-                  placeholder="Search brochures by name, brand, category, tags..."
+                  placeholder="Search by brochure name, brand, category..."
                   className="w-full bg-transparent text-sm outline-none placeholder:text-white/40"
                 />
               </div>
 
-              {/* CATEGORY */}
+              {/* ✅ BRAND DROPDOWN */}
               <div className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 backdrop-blur-xl shadow-xl">
                 <select
-                  value={activeCategory}
-                  onChange={(e) =>
-                    setActiveCategory(e.target.value as BrochureCategory)
-                  }
+                  value={selectedBrand}
+                  onChange={(e) => setSelectedBrand(e.target.value)}
                   className="w-full bg-transparent text-sm outline-none text-white"
                 >
-                  {categories.map((c) => (
-                    <option key={c} value={c} className="bg-[#0B0B0D]">
-                      {c}
-                    </option>
-                  ))}
+                  <option value="All" className="bg-[#0B0B0D]">
+                    All Brands
+                  </option>
+
+                  {(brands as Brand[])
+                    .filter((b) => b.is_active)
+                    .map((b) => (
+                      <option
+                        key={b.id}
+                        value={b.name}
+                        className="bg-[#0B0B0D]"
+                      >
+                        {b.name}
+                      </option>
+                    ))}
                 </select>
               </div>
 
@@ -204,13 +157,7 @@ const Brochure: React.FC = () => {
                   onChange={(e) => setSortMode(e.target.value as SortMode)}
                   className="w-full bg-transparent text-sm outline-none text-white"
                 >
-                  {[
-                    "Newest",
-                    "Oldest",
-                    "A-Z",
-                    "Size (Small)",
-                    "Size (Large)",
-                  ].map((s) => (
+                  {["Newest", "Oldest", "A-Z"].map((s) => (
                     <option key={s} value={s} className="bg-[#0B0B0D]">
                       Sort: {s}
                     </option>
@@ -239,6 +186,10 @@ const Brochure: React.FC = () => {
                 </button>
               )}
             </div>
+
+            {isLoading && (
+              <p className="mt-3 text-sm text-white/60">Loading brochures...</p>
+            )}
           </div>
         </div>
       </div>
@@ -249,7 +200,7 @@ const Brochure: React.FC = () => {
           <div className="rounded-2xl border border-white/10 bg-white/5 p-8 text-center">
             <p className="text-lg font-bold">No brochures found</p>
             <p className="mt-2 text-sm text-white/60">
-              Try a different keyword or select another category.
+              Try another brand or search keyword.
             </p>
           </div>
         ) : (
@@ -257,7 +208,7 @@ const Brochure: React.FC = () => {
             {filtered.map((b) => (
               <div
                 key={b.id}
-                className="group relative overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-b from-white/6 to-transparent p-5 shadow-2xl transition hover:border-red-500/40"
+                className="group relative overflow-hidden rounded-2xl border border-white/10 bg-linear-to-b from-white/6 to-transparent p-5 shadow-2xl transition hover:border-red-500/40"
               >
                 {/* top glow */}
                 <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition">
@@ -268,51 +219,33 @@ const Brochure: React.FC = () => {
                 <div className="relative flex flex-col gap-4">
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex items-center gap-3">
-                      <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-white/10 bg-white/5">
-                        <FileText className="h-6 w-6 text-white/80" />
+                      <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-2xl border border-white/10 bg-white/5">
+                        {b.brandLogo ? (
+                          <img
+                            src={b.brandLogo}
+                            alt={b.brandName}
+                            className="h-full w-full object-contain"
+                            loading="lazy"
+                          />
+                        ) : (
+                          <FileText className="h-6 w-6 text-white/80" />
+                        )}
                       </div>
 
                       <div>
-                        <p className="text-xs text-white/60">{b.brand}</p>
-                        <h3 className="text-base font-extrabold leading-tight">
+                        <p className="text-xs text-white/60">{b.brandName}</p>
+                        <h3 className="text-base font-medium leading-tight">
                           {b.title}
                         </h3>
+                        <p className="mt-1 text-xs text-white/50">
+                          Category: {b.categoryName}
+                        </p>
                       </div>
                     </div>
 
                     <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-white/80">
-                      {b.format}
+                      PDF
                     </span>
-                  </div>
-
-                  <p className="text-sm text-white/65 line-clamp-2">
-                    {b.description}
-                  </p>
-
-                  <div className="flex flex-wrap gap-2">
-                    <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-white/70">
-                      {b.category}
-                    </span>
-                    <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-white/70">
-                      {b.year}
-                    </span>
-                    <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-white/70">
-                      {b.pages} pages
-                    </span>
-                    <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-white/70">
-                      {b.sizeMB.toFixed(1)} MB
-                    </span>
-                  </div>
-
-                  <div className="flex flex-wrap gap-2">
-                    {b.tags.slice(0, 4).map((t) => (
-                      <span
-                        key={t}
-                        className="rounded-full border border-white/10 bg-black/30 px-3 py-1 text-xs text-white/70"
-                      >
-                        {t}
-                      </span>
-                    ))}
                   </div>
 
                   <div className="mt-2 grid grid-cols-2 gap-3">
@@ -337,24 +270,11 @@ const Brochure: React.FC = () => {
                       Preview
                     </a>
                   </div>
-
-                  <div className="pt-2 text-xs text-white/45">
-                    Tip: Share the preview link with customers instantly.
-                  </div>
                 </div>
               </div>
             ))}
           </div>
         )}
-
-        {/* FOOTER NOTE */}
-        <div className="mt-10 rounded-2xl border border-white/10 bg-white/5 p-6">
-          <p className="text-sm font-bold">Need a product-specific brochure?</p>
-          <p className="mt-1 text-sm text-white/60">
-            You can add brochures per product (or per category) from the admin
-            panel and display them here automatically.
-          </p>
-        </div>
       </div>
     </div>
   );

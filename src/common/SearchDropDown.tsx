@@ -6,17 +6,6 @@ import { useCategories } from "../hooks/useCategories";
 
 import { Search, Tag, Layers, ShoppingBag } from "lucide-react";
 
-const POPULAR_SEARCHES = [
-  "Electrical Wires",
-  "Aromoured Cables",
-  "LED Bulbs",
-  "Fans",
-  "Switches",
-  "Sanitaryware",
-  "Bidet Seats",
-  "Inverter Refrigerator",
-  "Smart TV",
-];
 
 
 const buildMultiLeafUrl = (leafSlugs: string[]) => {
@@ -135,7 +124,7 @@ const popularSearches = categories?.slice(0, 10) || [];
                   <button
                     key={c.id}
                     onClick={() => navigate(`/filter/${c.slug}`)}
-                    className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-bold text-white hover:bg-white/10 transition"
+                    className="rounded-full cursor-pointer border border-white/10 bg-white/5 px-4 py-2 text-xs font-bold text-white hover:bg-white/10 transition"
                   >
                     {c.name}
                   </button>

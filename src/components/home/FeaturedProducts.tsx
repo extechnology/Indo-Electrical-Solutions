@@ -1,76 +1,41 @@
-import React, { useMemo, useState } from "react";
-import { Heart, ChevronLeft, ChevronRight, Star } from "lucide-react";
+import React, { useMemo } from "react";
+import { ChevronLeft, ChevronRight, Star } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useProducts } from "../../hooks/useProducts";
+import type { ApiProduct } from "../../types";
 
-type Product = {
+export type FeaturedUiProduct = {
   id: number;
-  title: string;
+  name: string;
+  slug: string;
   image: string;
+
+  categorySlug: string;
+
   price: number;
   oldPrice?: number;
-  rating: number; // 0 to 5
-  reviewsCount?: number;
+
+  rating: number;
+  description: string;
+
+  brandName: string;
+
+  stock: number;
+  min_order_quantity: number;
 };
 
 const formatINR = (value: number) => {
   return new Intl.NumberFormat("en-IN", {
     style: "currency",
     currency: "INR",
-    maximumFractionDigits: 2,
+    maximumFractionDigits: 0,
   }).format(value);
 };
 
 const FeaturedProducts: React.FC = () => {
+  const { data: products = [], isLoading } = useProducts();
   const navigate = useNavigate();
-  const products: Product[] = useMemo(
-    () => [
-      {
-        id: 1,
-        title: "Croma 5 Litre Instant Geyser with Efficient Heating Technology",
-        image:
-          "https://images.unsplash.com/photo-1565849904461-04a58ad377e0?q=80&w=900&auto=format&fit=crop",
-        price: 3999,
-        oldPrice: 6000,
-        rating: 4.0,
-      },
-      {
-        id: 2,
-        title: "Honeywell Air Touch V3 Air Purifier with 3D Air Flow (White)",
-        image:
-          "https://images.unsplash.com/photo-1617531653332-bd46c24f2068?q=80&w=900&auto=format&fit=crop",
-        price: 9299,
-        oldPrice: 15299,
-        rating: 3.0,
-      },
-      {
-        id: 3,
-        title: "Russell Hobbs DOME1515 1500 Watt 1.5 Litre Electric Kettle",
-        image:
-          "https://images.unsplash.com/photo-1581338834647-b0fb40704e21?q=80&w=900&auto=format&fit=crop",
-        price: 799,
-        oldPrice: 1895,
-        rating: 4.5,
-      },
-      {
-        id: 4,
-        title: "Premium LED Smart Bulb 12W with App Control & Voice Assistant",
-        image:
-          "https://images.unsplash.com/photo-1504198458649-3128b932f49b?q=80&w=900&auto=format&fit=crop",
-        price: 499,
-        oldPrice: 799,
-        rating: 4.2,
-      },
-    ],
-    []
-  );
 
-  const [wishlisted, setWishlisted] = useState<Record<number, boolean>>({});
-
-  const toggleWishlist = (id: number) => {
-    setWishlisted((prev) => ({ ...prev, [id]: !prev[id] }));
-  };
-
-  // Optional: horizontal scroll controls (mobile)
   const scrollContainerId = "featured-products-scroll";
 
   const scroll = (dir: "left" | "right") => {
@@ -83,6 +48,33 @@ const FeaturedProducts: React.FC = () => {
       behavior: "smooth",
     });
   };
+
+  // ✅ Convert API -> UI (fix all mismatched fields here)
+  const featuredProducts = useMemo<FeaturedUiProduct[]>(() => {
+    return (products as ApiProduct[])
+      .filter((p) => p.is_active && p.is_featured)
+      .map((p) => ({
+        id: p.id,
+        name: p.name,
+        slug: p.slug,
+        image: p.image || "/placeholder.png",
+
+        categorySlug: p.category?.slug || "",
+
+        price: Number(p.price || 0),
+        oldPrice: p.old_price ? Number(p.old_price) : undefined,
+
+        rating: typeof p.rating === "number" ? p.rating : 4.0,
+
+        description: p.description || "",
+        brandName: p.brand?.name || "Brand",
+
+        stock: p.stock,
+        min_order_quantity: p.min_order_quantity,
+      }));
+  }, [products]);
+
+  console.log(featuredProducts, "featured");
 
   return (
     <section className="w-full bg-[#0B0B0D] py-10">
@@ -98,12 +90,13 @@ const FeaturedProducts: React.FC = () => {
             </p>
           </div>
 
-          {/* Arrow controls (nice for mobile) */}
+          {/* Arrow controls */}
           <div className="hidden sm:flex items-center gap-2">
             <button
               onClick={() => scroll("left")}
               className="rounded-full border border-[#2A2C33] bg-[#121216] p-2 text-white hover:border-[#E02C2C] transition"
               aria-label="Scroll left"
+              type="button"
             >
               <ChevronLeft className="h-5 w-5" />
             </button>
@@ -111,152 +104,170 @@ const FeaturedProducts: React.FC = () => {
               onClick={() => scroll("right")}
               className="rounded-full border border-[#2A2C33] bg-[#121216] p-2 text-white hover:border-[#E02C2C] transition"
               aria-label="Scroll right"
+              type="button"
             >
               <ChevronRight className="h-5 w-5" />
             </button>
           </div>
         </div>
 
-        {/* Mobile: horizontal scroll | Desktop: grid */}
-        <div
-          id={scrollContainerId}
-          className="
-            mt-6
-            flex gap-4 overflow-x-auto pb-3
-            sm:grid sm:overflow-visible sm:pb-0
-            sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4
-            scrollbar-hide
-          "
-          style={{
-            scrollbarWidth: "none",
-            msOverflowStyle: "none",
-          }}
-        >
-          {products.map((p) => (
-            <div
-              key={p.id}
-              className="
-                group relative
-                w-[260px] shrink-0
-                sm:w-auto
-                rounded-md
-                border border-[#2A2C33]
-                bg-[#121216]
-                overflow-hidden
-                transition
-                hover:border-[#E02C2C]
-                hover:shadow-2xl hover:shadow-black/50
-              "
-            >
-              {/* Wishlist */}
-              {/* <button
-                onClick={() => toggleWishlist(p.id)}
+        {/* Loading */}
+        {isLoading && (
+          <div className="mt-6 rounded-2xl border border-white/10 bg-white/5 p-8 text-center">
+            <p className="text-sm text-white/70">
+              Loading featured products...
+            </p>
+          </div>
+        )}
+
+        {/* Empty */}
+        {!isLoading && featuredProducts.length === 0 && (
+          <div className="mt-6 rounded-2xl border border-white/10 bg-white/5 p-8 text-center">
+            <p className="text-lg font-bold">No featured products found</p>
+            <p className="mt-2 text-sm text-white/60">
+              Please add featured products from admin.
+            </p>
+          </div>
+        )}
+
+        {/* Products */}
+        {!isLoading && featuredProducts.length > 0 && (
+          <div
+            id={scrollContainerId}
+            className="
+              mt-6
+              flex gap-4 overflow-x-auto pb-3
+              sm:grid sm:overflow-visible sm:pb-0
+              sm:grid-cols-2 cursor-pointer lg:grid-cols-3 xl:grid-cols-4
+              scrollbar-hide
+            "
+            style={{
+              scrollbarWidth: "none",
+              msOverflowStyle: "none",
+            }}
+          >
+            {featuredProducts.map((p) => (
+              <div
+                key={p.id}
                 className="
-                  absolute right-3 top-3 z-20
-                  rounded-full
-                  bg-black/50
-                  p-2
-                  text-white
-                  hover:bg-black/70
+                  group relative
+                  w-[260px] shrink-0
+                  sm:w-auto
+                  rounded-md
+                  border border-[#2A2C33]
+                  bg-[#121216]
+                  overflow-hidden
                   transition
+                  hover:border-[#E02C2C]
+                  hover:shadow-2xl hover:shadow-black/50
                 "
-                aria-label="Add to wishlist"
+                onClick={() => navigate(`/filter/${p?.categorySlug}`)}
               >
-                <Heart
-                  className={`h-5 w-5 transition ${
-                    wishlisted[p.id]
-                      ? "fill-[#E02C2C] text-[#E02C2C]"
-                      : "text-white"
-                  }`}
-                />
-              </button> */}
+                {/* Image */}
+                <div className="relative h-[210px] w-full bg-[#0B0B0D] flex items-center justify-center">
+                  <img
+                    src={p.image}
+                    alt={p.name}
+                    className="h-full w-full object-contain p-6 transition duration-500 group-hover:scale-[1.03]"
+                    draggable={false}
+                    loading="lazy"
+                  />
+                  <p className="absolute right-4 bottom-4 px-3 py-1 rounded-2xl bg-linear-to-r from-slate-950 to-gray-800 text-xs text-white ">
+                    Stock : {p.stock}
+                  </p>
+                  <div className="absolute inset-0 bg-linear-to-b from-transparent via-transparent to-black/35" />
+                </div>
 
-              {/* Image */}
-              <div className="relative h-[210px] w-full bg-[#0B0B0D] flex items-center justify-center">
-                <img
-                  src={p.image}
-                  alt={p.title}
-                  className="h-full w-full object-contain p-6 transition duration-500 group-hover:scale-[1.03]"
-                  draggable={false}
-                />
-
-                {/* subtle overlay gradient */}
-                <div className="absolute inset-0 bg-linear-to-b from-transparent via-transparent to-black/35" />
-              </div>
-
-              {/* Details */}
-              <div className="p-4">
-                {/* Title */}
-                <h3 className="text-white font-extrabold text-sm leading-snug line-clamp-2">
-                  {p.title}
-                </h3>
-
-                {/* Price Row */}
-                <div className="mt-3 flex items-end gap-2">
-                  <p className="text-white font-extrabold text-lg">
-                    {formatINR(p.price)}
+                {/* Details */}
+                <div className="p-4">
+                  {/* Brand */}
+                  <p className="text-[11px] text-white/60 font-semibold">
+                    {p.brandName}
                   </p>
 
-                  {p.oldPrice && (
-                    <p className="text-sm text-white/40 line-through">
-                      {formatINR(p.oldPrice)}
+                  {/* Title */}
+                  <h3 className="mt-1 text-white font-extrabold text-sm leading-snug line-clamp-2">
+                    {p.name}
+                  </h3>
+                  <p className="mt-1 text-white font-light text-xs leading-snug line-clamp-2">
+                    {p.description}
+                  </p>
+
+                  {/* Price */}
+                  <div className="mt-3 flex items-end gap-2">
+                    <p className="text-white font-bold text-lg">
+                      {formatINR(p.price)}
                     </p>
-                  )}
+
+                    {p.oldPrice ? (
+                      <p className="text-sm text-white/40 line-through">
+                        {formatINR(p.oldPrice)}
+                      </p>
+                    ) : null}
+                  </div>
+
+                  <div>
+                    <p className="mt-1 text-white font-light text-xs leading-snug line-clamp-2">
+                      Minimum Order : {p.min_order_quantity}
+                    </p>
+                  </div>
+
+                  {/* Rating */}
+                  <div className="mt-3 flex items-center gap-1">
+                    {Array.from({ length: 5 }).map((_, idx) => {
+                      const filled = idx + 1 <= Math.round(p.rating);
+                      return (
+                        <Star
+                          key={idx}
+                          className={`h-4 w-4 ${
+                            filled
+                              ? "fill-[#E02C2C] text-[#E02C2C]"
+                              : "text-white/25"
+                          }`}
+                        />
+                      );
+                    })}
+
+                    <span className="ml-2 text-xs text-[#9AA3AF]">
+                      {p.rating.toFixed(1)}
+                    </span>
+                  </div>
+
+                  {/* CTA */}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigate(`/filter/${p?.categorySlug}`);
+                    }}
+                    className="
+                      mt-4 w-full
+                      rounded-xl
+                      cursor-pointer
+                      bg-[#0B0B0D]
+                      border border-[#2A2C33]
+                      px-4 py-2.5
+                      text-sm font-bold text-white
+                      hover:border-[#E02C2C]
+                      hover:bg-white/5
+                      transition
+                    "
+                    type="button"
+                  >
+                    View Product
+                  </button>
                 </div>
-
-                {/* Rating */}
-                <div className="mt-3 flex items-center gap-1">
-                  {Array.from({ length: 5 }).map((_, idx) => {
-                    const filled = idx + 1 <= Math.round(p.rating);
-                    return (
-                      <Star
-                        key={idx}
-                        className={`h-4 w-4 ${
-                          filled
-                            ? "fill-[#E02C2C] text-[#E02C2C]"
-                            : "text-white/25"
-                        }`}
-                      />
-                    );
-                  })}
-
-                  <span className="ml-2 text-xs text-[#9AA3AF]">
-                    {p.rating.toFixed(1)}
-                  </span>
-                </div>
-
-                {/* CTA */}
-                <button
-                  onClick={() => navigate(`/detail`)}
-                  className="
-                    mt-4 w-full
-                    rounded-xl
-                    bg-[#0B0B0D]
-                    border border-[#2A2C33]
-                    px-4 py-2.5
-                    text-sm font-bold text-white
-                    hover:border-[#E02C2C]
-                    hover:bg-white/5
-                    transition
-                  "
-                >
-                  View Product
-                </button>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
 
         {/* Mobile hint */}
-        <p className="mt-4 text-xs text-[#9AA3AF] sm:hidden">
-          Swipe horizontally to view more products
-        </p>
+        {!isLoading && featuredProducts.length > 0 && (
+          <p className="mt-4 text-xs text-[#9AA3AF] sm:hidden">
+            Swipe horizontally to view more products
+          </p>
+        )}
       </div>
-
-      {/* Hide scrollbar */}
-      <style>{`
-        .scrollbar-hide::-webkit-scrollbar { display: none; }
-      `}</style>
     </section>
   );
 };

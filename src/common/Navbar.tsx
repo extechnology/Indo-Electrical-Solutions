@@ -84,21 +84,6 @@ const CloseIcon = ({ className = "" }: { className?: string }) => (
   </svg>
 );
 
-const SearchIcon = ({ className = "" }: { className?: string }) => (
-  <svg
-    className={`h-5 w-5 ${className}`}
-    fill="none"
-    viewBox="0 0 24 24"
-    strokeWidth={2}
-    stroke="currentColor"
-  >
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      d="M21 21l-4.35-4.35m1.85-5.15a7 7 0 11-14 0 7 7 0 0114 0z"
-    />
-  </svg>
-);
 
 const navItems = [
   {
@@ -111,11 +96,11 @@ const navItems = [
   },
   {
     name: "Top Brands",
-    link: "/top-brands",
+    link: "/brands",
   },
   {
     name: "Offers & Schemes",
-    link: "/offers-schemes",
+    link: "/offers-and-schemes",
   },
   {
     name: "Downloads",
@@ -127,7 +112,6 @@ const Navbar: React.FC = () => {
   const dropdownRef = useRef<HTMLDivElement | null>(null);
   const menuBtnRef = useRef<HTMLButtonElement | null>(null);
   const { data: categories } = useCategories();
-  console.log(categories, "categories");
   // const [active, setActive] = useState("Home");
   const [menuOpen, setMenuOpen] = useState(false);
   const navigate = useNavigate();

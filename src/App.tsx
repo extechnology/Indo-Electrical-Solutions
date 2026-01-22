@@ -13,6 +13,7 @@ const Brochure = lazy(() => import("./pages/Brochure"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const Filter = lazy(() => import("./pages/FilterPage"));
 const Exclusive = lazy(() => import("./pages/Exclusive"));
+const OffersAndSchemes = lazy(() => import("./pages/OffersAndSchemes"));
 
 function App() {
   return (
@@ -22,11 +23,12 @@ function App() {
         <Suspense fallback={<Loader />}>
           <Routes>
             <Route path="/" element={<Home />} />
-            <Route path="/brand/:brandId" element={<BrandPage />} />
+            <Route path="/brands" element={<BrandPage />} />
             <Route path="/detail" element={<DetailPage />} />
             <Route path="/brochure" element={<Brochure />} />
             <Route path="/filter/:category" element={<Filter />} />
             <Route path="/exclusive" element={<Exclusive />} />
+            <Route path="/offers-and-schemes" element={<OffersAndSchemes />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Suspense>
