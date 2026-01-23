@@ -98,7 +98,7 @@ const Exclusive: React.FC = () => {
       <section className="relative w-full overflow-hidden rounded-3xl border border-white/10">
         <img
           src="/banner1.jpg"
-          className="w-full h-[260px] sm:h-[360px] md:h-[420px] object-cover"
+          className="w-full h-[360px] md:h-[420px] object-cover"
           alt="Exclusive Banner"
         />
         <div className="absolute inset-0 bg-linear-to-r from-black/85 via-black/55 to-black/10" />
@@ -106,9 +106,9 @@ const Exclusive: React.FC = () => {
         <div className="absolute -top-24 -left-24 h-72 w-72 rounded-full bg-[#E02C2C]/20 blur-3xl" />
         <div className="absolute -bottom-24 -right-24 h-72 w-72 rounded-full bg-white/10 blur-3xl" />
 
-        <div className="absolute inset-0 flex items-center">
+        <div className="absolute  inset-0 flex items-center">
           <div className="w-full px-5 sm:px-8 md:px-10 py-6">
-            <div className="max-w-7xl mx-auto md:px-5">
+            <div className="max-w-7xl mx-auto md:px-5 py-15 ">
               <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-4 py-2 text-xs font-medium text-white backdrop-blur-xl">
                 <span className="h-2 w-2 rounded-full bg-[#E02C2C]" />
                 Exclusive Deals • Limited Time
@@ -374,7 +374,6 @@ const Exclusive: React.FC = () => {
               >
                 Explore Offers <ArrowRight className="w-4 h-4" />
               </Link>
-              
             </div>
           </div>
         </div>

@@ -194,15 +194,6 @@ const Navbar: React.FC = () => {
 
   const leafCategories = activeSubCategory?.children || [];
 
-  const exclusiveLinks = useMemo(
-    () => [
-      { id: "ex1", label: "Exclusive at INDO" },
-      { id: "ex2", label: "Top Brands" },
-      { id: "ex3", label: "Store Locator" },
-      { id: "ex4", label: "Gift Card" },
-    ],
-    [],
-  );
 
   // const menuGroups: MenuGroup[] = [
   //   {
@@ -297,16 +288,20 @@ const Navbar: React.FC = () => {
   }, [location.pathname]);
 
 
+
   useEffect(() => {
     if (!menuOpen) return;
     if (!mainCategories.length) return;
 
     const firstMain = mainCategories[0];
-    const firstSub = firstMain.children[0] || null;
+    const firstSub = firstMain?.children?.[0];
 
-    setActiveCategoryId(String(firstMain.id));
-    setActiveSubCategoryId(firstSub ? String(firstSub.id) : null);
+    setMobileCategoryId(String(firstMain.id));
+    setMobileSubCategoryId(firstSub ? String(firstSub.id) : null);
+
+    setMobileStep("SUBS"); 
   }, [menuOpen, mainCategories]);
+
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -365,7 +360,17 @@ const Navbar: React.FC = () => {
             <button
               ref={menuBtnRef}
               type="button"
-              onClick={() => setMenuOpen((v) => !v)}
+              onClick={() => {
+                setMenuOpen((v) => {
+                  const next = !v;
+                  if (!next) {
+                    setMobileStep("CATEGORIES");
+                    setMobileCategoryId(null);
+                    setMobileSubCategoryId(null);
+                  }
+                  return next;
+                });
+              }}
               className="ml-2 inline-flex items-center gap-2 rounded-xl border border-[#2A2C33] bg-[#121216] px-3 py-2 text-sm font-medium text-white hover:border-[#E02C2C] transition"
               aria-expanded={menuOpen}
               aria-label="Toggle Menu"
@@ -666,15 +671,24 @@ const Navbar: React.FC = () => {
                     </div>
 
                     <div className="p-4">
+                      <p className="text-white font-extrabold text-base mb-3">
+                        Quick Links
+                      </p>
+
                       <div className="rounded-xl border border-[#2A2C33] bg-[#121216] overflow-hidden">
-                        {exclusiveLinks.map((x) => (
-                          <button
-                            key={x.id}
-                            className="w-full flex items-center justify-between gap-3 px-4 py-3 text-left text-sm font-semibold text-white hover:bg-white/5 transition border-b border-[#2A2C33] last:border-b-0"
+                        {navItems.map((item) => (
+                          <NavLink
+                            key={item.name}
+                            to={item.link}
+                            onClick={() => setMenuOpen(false)}
+                            className={({ isActive }) =>
+                              `w-full flex items-center justify-between gap-3 px-4 py-3 text-left text-sm font-semibold transition border-b border-[#2A2C33] last:border-b-0
+          ${isActive ? "bg-[#E02C2C] text-white" : "text-white hover:bg-white/5"}`
+                            }
                           >
-                            <span>{x.label}</span>
+                            <span>{item.name}</span>
                             <ArrowRightIcon className="text-[#9AA3AF]" />
-                          </button>
+                          </NavLink>
                         ))}
                       </div>
                     </div>
@@ -757,6 +771,7 @@ const Navbar: React.FC = () => {
                                     key={leaf.id}
                                     onClick={() => {
                                       navigate(`/filter/${leaf.slug}`);
+                                      setMenuOpen(false);
                                     }}
                                     className="rounded-xl border border-[#2A2C33] bg-[#0B0B0D] px-4 py-3 text-left text-sm font-semibold text-white hover:border-[#E02C2C] hover:bg-white/5 transition"
                                   >
