@@ -195,79 +195,6 @@ const Navbar: React.FC = () => {
   const leafCategories = activeSubCategory?.children || [];
 
 
-  // const menuGroups: MenuGroup[] = [
-  //   {
-  //     id: "exclusive",
-  //     title: "Exclusive at INDO",
-  //     items: [
-  //       {
-  //         id: "exclusive-offers",
-  //         name: "Exclusive Offers",
-  //         subItems: [
-  //           {
-  //             id: "seasonal-offers",
-  //             name: "Seasonal Deals",
-  //             products: [
-  //               { id: "p1", name: "Festival Combo Packs" },
-  //               { id: "p2", name: "Lighting Discounts" },
-  //             ],
-  //           },
-  //         ],
-  //       },
-  //       {
-  //         id: "indo-services",
-  //         name: "INDO Services",
-  //         subItems: [
-  //           {
-  //             id: "support",
-  //             name: "Support & Repair",
-  //             products: [
-  //               { id: "p1", name: "Installation Service" },
-  //               { id: "p2", name: "Repair Service" },
-  //             ],
-  //           },
-  //         ],
-  //       },
-  //     ],
-  //   },
-  //   {
-  //     id: "brands",
-  //     title: "Top Brands",
-  //     items: [
-  //       {
-  //         id: "premium-brands",
-  //         name: "Premium Brands",
-  //         subItems: [
-  //           {
-  //             id: "brand-list",
-  //             name: "Brands",
-  //             products: [
-  //               { id: "p1", name: "Havells" },
-  //               { id: "p2", name: "Syska" },
-  //               { id: "p3", name: "Philips" },
-  //               { id: "p4", name: "Anchor" },
-  //             ],
-  //           },
-  //         ],
-  //       },
-  //       {
-  //         id: "budget-brands",
-  //         name: "Budget Brands",
-  //         subItems: [
-  //           {
-  //             id: "budget-list",
-  //             name: "Brands",
-  //             products: [
-  //               { id: "p1", name: "Wipro" },
-  //               { id: "p2", name: "Crompton" },
-  //             ],
-  //           },
-  //         ],
-  //       },
-  //     ],
-  //   },
-  // ];
-
 
   useEffect(() => {
     // ✅ Close dropdown on navigation
@@ -606,9 +533,9 @@ const Navbar: React.FC = () => {
                                   }
                                 </span> */}
                               </p>
-                              <button className="text-sm font-bold text-[#E02C2C] hover:text-white transition">
+                              {/* <button className="text-sm font-bold text-[#E02C2C] hover:text-white transition">
                                 View All
-                              </button>
+                              </button> */}
                             </div>
                           </>
                         ) : (
@@ -640,9 +567,9 @@ const Navbar: React.FC = () => {
                                   {activeSubCategory?.name}
                                 </span>
                               </p>
-                              <button className="text-sm font-bold text-[#E02C2C] hover:text-white transition">
+                              {/* <button className="text-sm font-bold text-[#E02C2C] hover:text-white transition">
                                 View All
-                              </button>
+                              </button> */}
                             </div>
                           </>
                         )}
@@ -782,9 +709,9 @@ const Navbar: React.FC = () => {
                             </div>
 
                             <div className="px-4 py-3 border-t border-[#2A2C33] bg-[#0B0B0D] flex justify-end">
-                              <button className="rounded-xl bg-[#E02C2C] px-4 py-2 text-sm font-bold text-white hover:bg-[#B91C1C] transition">
+                              {/* <button className="rounded-xl bg-[#E02C2C] px-4 py-2 text-sm font-bold text-white hover:bg-[#B91C1C] transition">
                                 View All
-                              </button>
+                              </button> */}
                             </div>
                           </div>
                         )}

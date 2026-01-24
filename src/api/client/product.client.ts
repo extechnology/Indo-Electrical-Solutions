@@ -14,3 +14,9 @@ export const getBrands = async () => {
   const res = await axiosInstance.get("/brands/");
   return res.data;
 };
+
+
+export const getBanners = async () => {
+  const res = await axiosInstance.get("/home-banner/");
+  return res.data;
+};

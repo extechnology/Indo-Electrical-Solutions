@@ -3,6 +3,8 @@ import { useBrands } from "../hooks/useBrands";
 import { useProducts } from "../hooks/useProducts";
 import { Link } from "react-router-dom";
 import { Search, X, Sparkles, ArrowRight, Star, Layers } from "lucide-react";
+import { useBanners } from "../hooks/useBanners";
+import type { HomeBanner } from "../types";
 
 type ApiBrand = {
   id: number;
@@ -55,6 +57,11 @@ const calcDiscountPercent = (oldPrice?: number, price?: number) => {
 const BrandPage: React.FC = () => {
   const { data: brandsData, isLoading: brandsLoading } = useBrands();
   const { data: productsData, isLoading: productsLoading } = useProducts();
+
+  const { data: banners = [] } = useBanners();
+    const brandBanner: HomeBanner | undefined = banners?.find(
+      (b: HomeBanner) => b.banner_type === "TOP_BRANDS",
+    );
 
   const [brandQuery, setBrandQuery] = useState("");
   const [selectedBrandIds, setSelectedBrandIds] = useState<number[]>([]);
@@ -136,43 +143,55 @@ const BrandPage: React.FC = () => {
     <div className="min-h-screen bg-[#0B0B0D] text-white">
       {/* ✅ HERO */}
       <section className="relative overflow-hidden border-b border-white/10">
+        {/* ✅ Background Image Layer */}
+        <img
+          src={brandBanner?.image || "/banner1.jpg"}
+          alt={brandBanner?.title || "Top Brands Banner"}
+          loading="lazy"
+          className="absolute inset-0 h-full w-full object-cover"
+        />
+
+        {/* ✅ Dark overlay for readability */}
+        <div className="absolute inset-0 bg-black/55" />
+
+        {/* ✅ Glow + gradient effects */}
         <div className="absolute inset-0">
           <div className="absolute -top-32 -left-32 h-96 w-96 rounded-full bg-red-500/20 blur-3xl" />
           <div className="absolute -bottom-32 -right-32 h-96 w-96 rounded-full bg-white/10 blur-3xl" />
           <div className="absolute inset-0 bg-linear-to-b from-white/5 to-transparent" />
         </div>
-        <div className="absolute inset-0 bg-[url('/banner1.jpg')] bg-cover bg-center bg-no-repeat"></div>
 
-        <div className="relative mx-auto  max-w-7xl px-4 py-10 md:py-14">
+        {/* ✅ Content */}
+        <div className="relative z-10 mx-auto max-w-7xl px-4 py-10 md:py-14">
           <div className="flex flex-col gap-3">
-            <p className="inline-flex w-fit items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-medium text-white/80">
+            <p className="inline-flex w-fit items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-medium text-white/80 backdrop-blur">
               <Sparkles className="w-4 h-4 text-[#E02C2C]" />
               Top Brands • Premium Picks
             </p>
 
-            <h1 className="text-2xl md:text-4xl font-medium tracking-tight">
-              Shop by Brands
+            <h1 className="text-2xl md:text-4xl font-medium tracking-tight text-white">
+              {brandBanner?.title || "Shop by Brands"}
             </h1>
 
             <p className="max-w-2xl text-sm md:text-base text-white/70">
-              Select one or multiple brands and explore products grouped by
-              category — a clean premium browsing experience.
+              {brandBanner?.description ||
+                "Select one or multiple brands and explore products grouped by category — a clean premium browsing experience."}
             </p>
 
             {/* Brand search */}
-            <div className="mt-5 flex flex-col md:flex-row gap-3">
-              <div className="flex items-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 backdrop-blur-xl shadow-xl w-full md:max-w-lg">
-                <Search className="w-5 h-5 text-white/60" />
+            <div className="mt-5 flex flex-col gap-3 md:flex-row">
+              <div className="flex w-full items-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 backdrop-blur-xl shadow-xl md:max-w-lg">
+                <Search className="h-5 w-5 text-white/60" />
                 <input
                   value={brandQuery}
                   onChange={(e) => setBrandQuery(e.target.value)}
                   placeholder="Search brand name..."
-                  className="w-full bg-transparent outline-none text-sm placeholder:text-white/40"
+                  className="w-full bg-transparent text-sm text-white outline-none placeholder:text-white/40"
                 />
                 {brandQuery.trim() && (
                   <button
                     onClick={() => setBrandQuery("")}
-                    className="rounded-full border border-white/10 bg-black/30 px-3 py-1 text-xs font-bold text-white/80 hover:bg-white/10 transition"
+                    className="rounded-full border border-white/10 bg-black/30 px-3 py-1 text-xs font-bold text-white/80 transition hover:bg-white/10"
                   >
                     Clear
                   </button>
@@ -182,9 +201,9 @@ const BrandPage: React.FC = () => {
               <div className="flex items-center gap-2">
                 <button
                   onClick={clearBrands}
-                  className="inline-flex items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-xs font-medium text-white hover:bg-white/10 transition"
+                  className="inline-flex items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-xs font-medium text-white transition hover:bg-white/10"
                 >
-                  <X className="w-4 h-4" />
+                  <X className="h-4 w-4" />
                   Clear Selection
                 </button>
 
@@ -202,7 +221,7 @@ const BrandPage: React.FC = () => {
                   <button
                     key={b.id}
                     onClick={() => toggleBrand(b.id)}
-                    className="group inline-flex items-center gap-2 rounded-full border border-white/10 bg-[#E02C2C]/20 px-4 py-2 text-xs font-medium text-white hover:bg-[#E02C2C]/30 transition"
+                    className="group inline-flex items-center gap-2 rounded-full border border-white/10 bg-[#E02C2C]/20 px-4 py-2 text-xs font-medium text-white transition hover:bg-[#E02C2C]/30"
                   >
                     <span>{b.name}</span>
                     <span className="opacity-80 group-hover:opacity-100">
@@ -265,8 +284,6 @@ const BrandPage: React.FC = () => {
 
                   <div className="relative flex flex-col items-start gap-1">
                     <div className="flex items-center justify-between w-full">
-                      
-
                       {active && (
                         <span className="rounded-full bg-[#E02C2C] px-3 py-1 text-[10px] font-medium text-white">
                           Selected

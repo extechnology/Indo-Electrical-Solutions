@@ -11,6 +11,8 @@ import {
   ArrowRight,
 } from "lucide-react";
 import { Link } from "react-router-dom";
+import type { HomeBanner } from "../types";
+import { useBanners } from "../hooks/useBanners";
 
 type OfferType =
   | "All"
@@ -37,6 +39,11 @@ type Offer = {
 const OffersSchemesPage: React.FC = () => {
   const [activeType, setActiveType] = useState<OfferType>("All");
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
+
+  const { data: banners = [] } = useBanners();
+  const OffersBanner: HomeBanner | undefined = banners?.find(
+    (b: HomeBanner) => b.banner_type === "OFFERS",
+  );
 
   const offerTypes: { label: OfferType; icon: React.ReactNode }[] = [
     { label: "All", icon: <Sparkles className="w-4 h-4" /> },
@@ -140,52 +147,63 @@ const OffersSchemesPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-[#0B0B0D] text-white">
       {/* ✅ HERO */}
-      <section className="relative overflow-hidden border-b border-white/10">
+      <section className="relative border-b border-white/10">
+        {/* ✅ Background Image Layer */}
+        <img
+          src={OffersBanner?.image || "/banner1.jpg"}
+          alt={OffersBanner?.title || "Offers Banner"}
+          loading="lazy"
+          className="absolute inset-0  w-full object-cover"
+        />
+
+        {/* ✅ Overlay Layer (dark + gradient + glow shapes) */}
+        {/* <div className="absolute inset-0 bg-black/55" /> */}
+
         <div className="absolute inset-0">
           <div className="absolute -top-28 -left-28 h-96 w-96 rounded-full bg-red-500/20 blur-3xl" />
           <div className="absolute -bottom-28 -right-28 h-96 w-96 rounded-full bg-white/10 blur-3xl" />
-          <div className="absolute inset-0 bg-linear-to-b from-white/5 to-transparent" />
+          <div className="absolute inset-0 bg-linear-to-b from-white/10 to-transparent" />
         </div>
 
-        <div className="absolute inset-0 bg-[url('/banner1.jpg')] bg-cover bg-center bg-no-repeat"></div>
-
-        <div className="relative mx-auto max-w-7xl px-4 py-10 md:py-14">
+        {/* ✅ Content Layer */}
+        <div className="relative z-10 mx-auto max-w-7xl px-4 py-10 md:py-14">
           <div className="flex flex-col gap-3">
-            <p className="inline-flex w-fit items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-extrabold text-white/80">
-              <BadgePercent className="w-4 h-4 text-[#E02C2C]" />
+            {/* <p className="inline-flex w-fit items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-extrabold text-white/80 backdrop-blur">
+              <BadgePercent className="h-4 w-4 text-[#E02C2C]" />
               Offers & Schemes • Premium Savings
-            </p>
+            </p> */}
 
-            <h1 className="text-2xl md:text-4xl font-medium tracking-tight">
-              Unlock Better Deals, Every Day.
-            </h1>
+            {/* Optional dynamic title/description */}
+            {/* <h1 className="text-2xl md:text-4xl font-semibold tracking-tight text-white">
+        {OffersBanner?.title || "Unlock Better Deals, Every Day."}
+      </h1>
 
-            <p className="max-w-2xl text-sm md:text-base text-white/70">
-              Explore bank offers, cashback, no-cost EMI, combo deals and
-              seasonal schemes — all in one premium experience.
-            </p>
+      <p className="max-w-2xl text-sm md:text-base text-white/70">
+        {OffersBanner?.description ||
+          "Explore bank offers, cashback, no-cost EMI, combo deals and seasonal schemes — all in one premium experience."}
+      </p> */}
 
-            <div className="mt-6 flex flex-col sm:flex-row gap-3">
+            {/* <div className="mt-6 flex flex-col gap-3 sm:flex-row">
               <Link
                 to="/products"
-                className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#E02C2C] px-5 py-3 text-sm font-bold text-white hover:bg-[#B91C1C] transition"
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#E02C2C] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#B91C1C]"
               >
-                Explore Products <ArrowRight className="w-4 h-4" />
+                Explore Products <ArrowRight className="h-4 w-4" />
               </Link>
 
               <Link
                 to="/brochure"
-                className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 px-5 py-3 text-sm font-bold text-white hover:bg-white/10 transition"
+                className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 px-5 py-3 text-sm font-bold text-white transition hover:bg-white/10"
               >
                 Download Brochures
               </Link>
-            </div>
+            </div> */}
           </div>
         </div>
       </section>
 
       {/* ✅ OFFER TYPE SELECTOR (Innovative Chips) */}
-      <section className="mx-auto max-w-7xl px-4 pt-10">
+      <section className="mx-auto max-w-7xl px-4 pt-28">
         <div className="flex items-end justify-between gap-4">
           <div>
             <h2 className="text-lg md:text-xl font-medium">Browse Offers</h2>

@@ -86,3 +86,25 @@ export interface ApiProduct {
 export type ProductsResponse = ApiProduct[];
 export type BrandsResponse = Brand[];
 export type CategoriesResponse = ApiCategory[];
+
+export type BannerType = "HERO" | "EXCLUSIVE" | "TOP_BRANDS" | "OFFERS";
+
+export const BANNER_TYPE_LABEL: Record<BannerType, string> = {
+  HERO: "Hero Carousel",
+  EXCLUSIVE: "Exclusive Banner",
+  TOP_BRANDS: "Top Brands Banner",
+  OFFERS: "Offers Banner",
+};
+
+
+export type HomeBanner = {
+  id: number;
+  banner_type: BannerType;
+  image: string; // backend URL
+  title: string;
+  description: string;
+  is_active: boolean;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+};

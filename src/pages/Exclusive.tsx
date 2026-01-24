@@ -10,6 +10,8 @@ import {
 } from "lucide-react";
 import { useProducts } from "../hooks/useProducts";
 import { useBrands } from "../hooks/useBrands";
+import { useBanners } from "../hooks/useBanners";
+import type { HomeBanner } from "../types";
 
 const formatINR = (value: number) =>
   value.toLocaleString("en-IN", { maximumFractionDigits: 0 });
@@ -43,7 +45,12 @@ type Product = {
 const Exclusive: React.FC = () => {
   const { data: products = [] } = useProducts();
   const { data: brands = [] } = useBrands();
+  const { data: banners = [] } = useBanners();
+  console.log(banners, "banners");
 
+  const exclusiveBanner: HomeBanner | undefined = banners?.find(
+    (b: HomeBanner) => b.banner_type === "EXCLUSIVE",
+  );
 
   const [activeTab, setActiveTab] = useState<
     "Featured" | "New Launches" | "Top Deals"
@@ -95,20 +102,20 @@ const Exclusive: React.FC = () => {
   return (
     <div className="min-h-screen bg-[#0B0B0D] text-white">
       {/* ✅ HERO BANNER */}
-      <section className="relative w-full overflow-hidden rounded-3xl border border-white/10">
+      <section className="relative w-full overflow-hidden rounded-b-3xl border border-white/10">
         <img
-          src="/banner1.jpg"
-          className="w-full h-[360px] md:h-[420px] object-cover"
+          src={exclusiveBanner?.image}
+          className="w-full  object-cover"
           alt="Exclusive Banner"
         />
-        <div className="absolute inset-0 bg-linear-to-r from-black/85 via-black/55 to-black/10" />
+        {/* <div className="absolute inset-0 bg-linear-to-r from-black/85 via-black/55 to-black/10" />
         <div className="absolute inset-0 bg-linear-to-t from-black/70 via-transparent to-transparent" />
         <div className="absolute -top-24 -left-24 h-72 w-72 rounded-full bg-[#E02C2C]/20 blur-3xl" />
-        <div className="absolute -bottom-24 -right-24 h-72 w-72 rounded-full bg-white/10 blur-3xl" />
+        <div className="absolute -bottom-24 -right-24 h-72 w-72 rounded-full bg-white/10 blur-3xl" /> */}
 
         <div className="absolute  inset-0 flex items-center">
           <div className="w-full px-5 sm:px-8 md:px-10 py-6">
-            <div className="max-w-7xl mx-auto md:px-5 py-15 ">
+            {/* <div className="max-w-7xl mx-auto md:px-5 py-15 ">
               <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-4 py-2 text-xs font-medium text-white backdrop-blur-xl">
                 <span className="h-2 w-2 rounded-full bg-[#E02C2C]" />
                 Exclusive Deals • Limited Time
@@ -133,7 +140,7 @@ const Exclusive: React.FC = () => {
                   View Offers & Schemes
                 </button>
               </div>
-            </div>
+            </div> */}
           </div>
         </div>
       </section>
@@ -369,7 +376,7 @@ const Exclusive: React.FC = () => {
 
             <div className="mt-6 flex flex-col sm:flex-row gap-3">
               <Link
-                to="/offers"
+                to="/offers-and-schemes"
                 className="inline-flex items-center justify-center gap-2 rounded-xl bg-white text-black px-6 py-3 text-sm font-medium hover:bg-white/90 transition"
               >
                 Explore Offers <ArrowRight className="w-4 h-4" />
