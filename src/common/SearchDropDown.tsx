@@ -6,7 +6,10 @@ import { useCategories } from "../hooks/useCategories";
 
 import { Search, Tag, Layers, ShoppingBag } from "lucide-react";
 
-
+type SearchDropdownProps = {
+  expanded: boolean;
+  setExpanded: React.Dispatch<React.SetStateAction<boolean>>;
+};
 
 const buildMultiLeafUrl = (leafSlugs: string[]) => {
   // /filter?leaf=slug1&leaf=slug2
@@ -15,15 +18,15 @@ const buildMultiLeafUrl = (leafSlugs: string[]) => {
   return `/filter?${params.toString()}`;
 };
 
-const SearchDropdown: React.FC = () => {
+const SearchDropdown: React.FC<SearchDropdownProps> = ({
+  expanded,
+  setExpanded,
+}) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { data: categories } = useCategories();
-const popularSearches = categories?.slice(0, 10) || [];
+  const popularSearches = categories?.filter((c: any) => c.category_type === "LEAF").slice(0, 10) || [];
 
-
-
-  console.log(popularSearches,"pop");
   const containerRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
 
@@ -33,6 +36,15 @@ const popularSearches = categories?.slice(0, 10) || [];
   const debounced = useDebounce(query, 350);
   const { data, isFetching } = useSearch(debounced);
 
+
+  useEffect(() => {
+    if (expanded) {
+      setTimeout(() => {
+        inputRef.current?.focus();
+      }, 50);
+    }
+  }, [expanded]);
+
   // ✅ close dropdown on route change
   useEffect(() => {
     setOpen(false);
@@ -41,15 +53,31 @@ const popularSearches = categories?.slice(0, 10) || [];
   // ✅ click outside close
   useEffect(() => {
     const handler = (e: MouseEvent) => {
-      if (!open) return;
       if (!containerRef.current) return;
+
       if (!containerRef.current.contains(e.target as Node)) {
         setOpen(false);
+        setExpanded(false);
+        setQuery("");
       }
     };
+
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
-  }, [open]);
+  }, []);
+
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setOpen(false);
+        setExpanded(false);
+        setQuery("");
+      }
+    };
+
+    document.addEventListener("keydown", handler);
+    return () => document.removeEventListener("keydown", handler);
+  }, []);
 
   const hasResults = useMemo(() => {
     if (!data) return false;
@@ -85,30 +113,70 @@ const popularSearches = categories?.slice(0, 10) || [];
   };
 
   return (
-    <div ref={containerRef} className="relative w-full">
+    <div
+      ref={containerRef}
+      className={`
+    relative transition-all duration-300
+    ${expanded ? "w-full" : "w-[44px]"}
+  `}
+    >
+      {" "}
       {/* INPUT */}
-      <div className="flex items-center gap-2 rounded-xl bg-white px-4 py-2.5 pr-11 text-sm font-medium text-[#0B0B0D]">
-        <Search className="h-5 w-5 text-gray-500" />
-        <input
-          ref={inputRef}
-          value={query}
-          onChange={(e) => {
-            setQuery(e.target.value);
-            setOpen(true);
-          }}
-          onFocus={() => setOpen(true)}
-          placeholder="Search products, categories, brands..."
-          className="w-full bg-transparent outline-none placeholder:text-gray-400"
-        />
-        {isFetching && (
-          <span className="text-xs text-gray-500 font-semibold">
-            Searching...
-          </span>
+      <div className="flex items-center justify-end">
+        {/* Icon Button (default view) */}
+        {!expanded && (
+          <button
+            type="button"
+            onClick={() => {
+              setExpanded(true);
+              setOpen(true);
+            }}
+            className="inline-flex h-11 w-11 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-white hover:bg-white/10 transition"
+          >
+            <Search className="h-5 w-5" />
+          </button>
+        )}
+
+        {/* Expanded Search */}
+        {expanded && (
+          <div className="flex w-full items-center gap-2 rounded-xl bg-white px-4 py-2.5 text-sm font-medium text-[#0B0B0D]">
+            <Search className="h-5 w-5 text-gray-500" />
+
+            <input
+              ref={inputRef}
+              value={query}
+              onChange={(e) => {
+                setQuery(e.target.value);
+                setOpen(true);
+              }}
+              onFocus={() => setOpen(true)}
+              placeholder="Search products, categories, brands..."
+              className="w-full bg-transparent outline-none placeholder:text-gray-400"
+            />
+
+            {isFetching && (
+              <span className="text-xs text-gray-500 font-semibold">
+                Searching...
+              </span>
+            )}
+
+            {/* Close Button */}
+            <button
+              type="button"
+              onClick={() => {
+                setExpanded(false);
+                setOpen(false);
+                setQuery("");
+              }}
+              className="rounded-lg px-2 py-1 text-xs font-bold text-gray-600 hover:bg-black/5 transition"
+            >
+              Close
+            </button>
+          </div>
         )}
       </div>
-
       {/* DROPDOWN */}
-      {open && (
+      {expanded && open && (
         <div className="absolute left-0 right-0 top-[110%] z-50 overflow-hidden rounded-2xl border border-white/10 bg-[#0B0B0D] shadow-2xl">
           {/* suggestions */}
 
@@ -120,15 +188,16 @@ const popularSearches = categories?.slice(0, 10) || [];
               </p>
 
               <div className="flex flex-wrap gap-2">
-                {Array.isArray(popularSearches) && popularSearches.map((c) => (
-                  <button
-                    key={c.id}
-                    onClick={() => navigate(`/filter/${c.slug}`)}
-                    className="rounded-full cursor-pointer border border-white/10 bg-white/5 px-4 py-2 text-xs font-bold text-white hover:bg-white/10 transition"
-                  >
-                    {c.name}
-                  </button>
-                ))}
+                {Array.isArray(popularSearches) &&
+                  popularSearches.map((c) => (
+                    <button
+                      key={c.id}
+                      onClick={() => navigate(`/filter/${c.slug}`)}
+                      className="rounded-full cursor-pointer border border-white/10 bg-white/5 px-4 py-2 text-xs font-bold text-white hover:bg-white/10 transition"
+                    >
+                      {c.name}
+                    </button>
+                  ))}
               </div>
 
               <p className="mt-4 text-xs text-white/40">

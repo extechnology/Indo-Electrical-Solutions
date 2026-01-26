@@ -1,8 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useCategories } from "../hooks/useCategories";
-import { Link, useNavigate ,useLocation,NavLink} from "react-router-dom";
+import { Link, useNavigate, useLocation, NavLink } from "react-router-dom";
 import SearchDropdown from "./SearchDropDown";
-
 
 // type Product = {
 //   id: string;
@@ -84,7 +83,6 @@ const CloseIcon = ({ className = "" }: { className?: string }) => (
   </svg>
 );
 
-
 const navItems = [
   {
     name: "Home",
@@ -117,6 +115,9 @@ const Navbar: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
+  const [showNavbar, setShowNavbar] = useState(true);
+
+  const [searchExpanded,setSearchExpanded] = useState(false);
 
   const [activeGroupId, setActiveGroupId] = useState<string | null>(null);
   // const [activeGroupItemId, setActiveGroupItemId] = useState<string | null>(
@@ -140,6 +141,40 @@ const Navbar: React.FC = () => {
   const [mobileSubCategoryId, setMobileSubCategoryId] = useState<string | null>(
     null,
   );
+
+  useEffect(() => {
+    let lastY = window.scrollY;
+
+    const onScroll = () => {
+      const currentY = window.scrollY;
+
+      // Always show near top
+      if (currentY <= 50) {
+        setShowNavbar(true);
+        lastY = currentY;
+        return;
+      }
+
+      // scroll down => hide
+      if (currentY > lastY + 10) {
+        setShowNavbar(false);
+      }
+
+      // scroll up => show
+      if (currentY < lastY - 10) {
+        setShowNavbar(true);
+      }
+
+      lastY = currentY;
+    };
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  useEffect(() => {
+    if (menuOpen) setShowNavbar(true);
+  }, [menuOpen]);
 
   const buildCategoryTree = (data: ApiCategory[] = []) => {
     const map = new Map<number, NavCategory>();
@@ -194,8 +229,6 @@ const Navbar: React.FC = () => {
 
   const leafCategories = activeSubCategory?.children || [];
 
-
-
   useEffect(() => {
     // ✅ Close dropdown on navigation
     setMenuOpen(false);
@@ -214,8 +247,6 @@ const Navbar: React.FC = () => {
     setMobileSubCategoryId(null);
   }, [location.pathname]);
 
-
-
   useEffect(() => {
     if (!menuOpen) return;
     if (!mainCategories.length) return;
@@ -226,9 +257,8 @@ const Navbar: React.FC = () => {
     setMobileCategoryId(String(firstMain.id));
     setMobileSubCategoryId(firstSub ? String(firstSub.id) : null);
 
-    setMobileStep("SUBS"); 
+    setMobileStep("SUBS");
   }, [menuOpen, mainCategories]);
-
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -273,8 +303,16 @@ const Navbar: React.FC = () => {
 
   return (
     <div className="w-full">
-      <header className="sticky top-0 z-50 bg-[#0B0B0D] border-b border-[#2A2C33]">
-        <div className="mx-auto max-w-7xl px-4 py-2">
+      <header
+        className={`
+    fixed top-0 left-0 right-0 z-50
+    bg-[#0B0B0D] border-b border-[#2A2C33]
+    transition-transform duration-300 ease-in-out
+    ${showNavbar ? "translate-y-0" : "-translate-y-full"}
+  `}
+      >
+        {" "}
+        <div className="mx-auto max-w-7xl px-4 py-2 h-[80px]">
           <div className="flex h-16 items-center gap-3 ">
             <div className="flex items-center gap-3">
               <Link to="/">
@@ -306,39 +344,56 @@ const Navbar: React.FC = () => {
               <span className="hidden sm:inline">Menu</span>
             </button>
 
-            <div className="hidden md:flex items-center gap-2 bg-white/5 border border-white/10 px-3 rounded-xl backdrop-blur-xl shadow-lg">
-              {navItems.map((item) => (
-                <NavLink
-                  key={item.name}
-                  to={item.link}
-                  className={({ isActive }) =>
-                    `relative px-4 my-2 rounded-xl text-sm font-semibold transition-all duration-300
-      ${
-        isActive
-          ? "text-white shadow-md"
-          : "text-white/70 hover:text-white hover:bg-white/5"
-      }`
-                  }
-                >
-                  {({ isActive }) => (
-                    <>
-                      {item.name}
+            {/* NavLinks + Search row */}
+            <div className="hidden md:flex flex-1 items-center gap-3 overflow-visible">
+              {/* Navlinks container */}
+              <div
+                className={`
+      flex items-center  justify-center gap-2 bg-white/5 border border-white/10 px-3 rounded-xl backdrop-blur-xl shadow-lg
+      transition-all duration-300
+      ${searchExpanded ? "flex-[0.65]" : "flex-1"}
+    `}
+              >
+                {navItems.map((item) => (
+                  <NavLink
+                    key={item.name}
+                    to={item.link}
+                    className={({ isActive }) =>
+                      `relative px-4 my-2 rounded-xl text-sm font-semibold transition-all duration-300 whitespace-nowrap
+          ${
+            isActive
+              ? "text-white shadow-md"
+              : "text-white/70 hover:text-white hover:bg-white/5"
+          }`
+                    }
+                  >
+                    {({ isActive }) => (
+                      <>
+                        {item.name}
+                        {isActive && (
+                          <span className="absolute left-3 right-3 -bottom-[2px] h-[0.5px] rounded-full bg-[#E02C2C]" />
+                        )}
+                      </>
+                    )}
+                  </NavLink>
+                ))}
+              </div>
 
-                      {isActive && (
-                        <span className="absolute left-3 right-3 -bottom-[2px] h-[0.5px] rounded-full bg-[#E02C2C]" />
-                      )}
-                    </>
-                  )}
-                </NavLink>
-              ))}
-            </div>
-
-            <div className="flex-1">
-              <SearchDropdown />
+              {/* Search container */}
+              <div
+                className={`
+      transition-all duration-300
+      ${searchExpanded ? "flex-[0.35]" : "flex-none"}
+    `}
+              >
+                <SearchDropdown
+                  expanded={searchExpanded}
+                  setExpanded={setSearchExpanded}
+                />
+              </div>
             </div>
           </div>
         </div>
-
         {menuOpen && (
           <div ref={dropdownRef} className="relative">
             <div
