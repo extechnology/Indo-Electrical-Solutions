@@ -20,3 +20,9 @@ export const getBanners = async () => {
   const res = await axiosInstance.get("/home-banner/");
   return res.data;
 };
+
+
+export const getLatestLaunches = async () => {
+  const res = await axiosInstance.get("/latest-launches/");
+  return res.data;
+};

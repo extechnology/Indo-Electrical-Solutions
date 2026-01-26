@@ -99,6 +99,12 @@ const Exclusive: React.FC = () => {
     },
   ];
 
+  const WHATSAPP_NUMBER = "917664939393"; // ✅ your number with country code (no +)
+
+  const buildWhatsAppLink = (product: any) => {
+    const message = `Hi, I am interested in this product:\n\n${product.name}\n\nProduct ID: ${product.id}`;
+    return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
+  };
   return (
     <div className="min-h-screen bg-[#0B0B0D] text-white">
       {/* ✅ HERO BANNER */}
@@ -343,10 +349,15 @@ const Exclusive: React.FC = () => {
                       ) : null}
                     </div>
 
-                    <div className="mt-5">
-                      <button className="w-full rounded-lg bg-[#E02C2C] px-4 py-3 text-sm font-bold text-white hover:bg-[#B91C1C] transition">
-                        Enquire Now
-                      </button>
+                    <div className="mt-5 w-full">
+                      <a
+                        href={buildWhatsAppLink(p)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="w-full rounded-lg bg-[#E02C2C] px-4 py-3 text-sm font-bold text-white hover:bg-[#B91C1C] transition"
+                      >
+                        Order Now
+                      </a>
                     </div>
                   </div>
                 </Link>

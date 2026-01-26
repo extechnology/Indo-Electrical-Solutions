@@ -34,7 +34,7 @@ type ApiProduct = {
   slug: string;
   description?: string;
 
-  price: string; 
+  price: string;
   old_price?: string | null;
 
   is_exclusive: boolean;
@@ -240,6 +240,13 @@ const FilterPage: React.FC = () => {
 
   const loading = productsLoading || brandsLoading;
 
+  const WHATSAPP_NUMBER = "917664939393"; // ✅ your number with country code (no +)
+
+  const buildWhatsAppLink = (product: any) => {
+    const message = `Hi, I am interested in this product:\n\n${product.name}\n\nProduct ID: ${product.id}`;
+    return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
+  };
+
   return (
     <div className="min-h-screen bg-[#0B0B0D] text-white">
       <div className="mx-auto max-w-7xl px-4 py-6">
@@ -361,38 +368,41 @@ const FilterPage: React.FC = () => {
 
         {/* Products Grid */}
         {!loading && (
-          <div className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+          <div className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-4">
             {filteredProducts.map((p) => {
               const price = Number(p.price) || 0;
               const oldPrice = p.old_price ? Number(p.old_price) : undefined;
 
               const discountPercent = calcDiscountPercent(oldPrice, price);
 
-              const outOfStock = p.stock <= 0;
+              // const outOfStock = p.stock <= 0;
 
               return (
                 <div
                   key={p.id}
-                  className="group rounded-xl border border-white/10 bg-white/5 p-4 hover:bg-white/10 transition"
+                  className="group relative flex h-full flex-col rounded-xl border border-white/10 bg-white/5 p-4 transition hover:bg-white/10"
                 >
                   {/* Image */}
-                  <div className="relative rounded-lg bg-white/10 p-5 h-[240px] flex items-center justify-center overflow-hidden">
+                  <div className="relative h-[240px] overflow-hidden rounded-lg bg-white p-5">
                     <img
                       src={
                         p.image ||
                         "https://via.placeholder.com/400x400?text=No+Image"
                       }
                       alt={p.name}
-                      className="h-full w-full object-contain group-hover:scale-[1.03] transition duration-300"
+                      className="h-full w-full object-contain transition duration-300 group-hover:scale-[1.03]"
+                      loading="lazy"
                     />
                   </div>
 
                   {/* Product Info */}
-                  <div className="mt-4">
+                  <div className="mt-4 flex flex-1 flex-col">
+                    {/* Title */}
                     <h3 className="text-sm font-medium leading-snug text-white line-clamp-2">
                       {p.name}
                     </h3>
 
+                    {/* Meta */}
                     <div className="mt-2 text-xs text-white/50">
                       <span className="font-semibold text-white/70">
                         {p.brand?.name}
@@ -401,62 +411,72 @@ const FilterPage: React.FC = () => {
                       <span className="text-white/60">{p.category?.name}</span>
                     </div>
 
-                    <div>
-                      {p.description && (
-                        <p className="mt-2 text-xs text-white/50 line-clamp-2">
+                    {/* Description (clamped) + hover full preview */}
+                    {p.description?.trim() ? (
+                      <div className="relative mt-2">
+                        <p className="text-xs text-white/50 line-clamp-2">
                           {p.description}
                         </p>
-                      )}
-                    </div>
 
-                    {/* Price */}
-                    <div className="mt-3 flex flex-wrap items-center gap-3">
-                      <span className="text-2xl font-medium tracking-tight">
-                        ₹{formatINR(price)}
+                        {/* ✅ Full description tooltip (opens UP) */}
+                        <div
+                          className="
+        pointer-events-none absolute left-0 bottom-full z-30 mb-2 w-full
+        opacity-0 translate-y-1 transition
+        group-hover:opacity-100 group-hover:translate-y-0
+      "
+                        >
+                          <div className="rounded-lg border border-white/10 bg-black/80 p-3 text-xs text-white/90 backdrop-blur-md shadow-lg">
+                            <p className="leading-relaxed">{p.description}</p>
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="mt-2 h-[32px]" />
+                    )}
+
+                    {/* Price block */}
+                    {price && (
+                      <div className="mt-3 flex flex-wrap items-center gap-3">
+                        <span className="text-2xl font-medium tracking-tight text-white">
+                          ₹{formatINR(price)}
+                        </span>
+
+                        {!!oldPrice && (
+                          <span className="text-sm text-white/40 line-through">
+                            ₹{formatINR(oldPrice)}
+                          </span>
+                        )}
+
+                        {discountPercent !== null && (
+                          <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-bold text-white">
+                            {discountPercent}% Off
+                          </span>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Min order quantity */}
+                    {p.min_order_quantity && (
+                      <span className="mt-2 text-xs text-white/50">
+                        Min Order Quantity: {p.min_order_quantity}
                       </span>
+                    )}
 
-                      {!!oldPrice && (
-                        <span className="text-sm text-white/40 line-through">
-                          ₹{formatINR(oldPrice)}
-                        </span>
-                      )}
-
-                      {discountPercent !== null && (
-                        <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-bold text-white">
-                          {discountPercent}% Off
-                        </span>
-                      )}
-                    </div>
-
-                    <div>
-                      {p.min_order_quantity && (
-                        <span className="text-xs text-white/50">
-                          Min Order Quantity: {p.min_order_quantity}
-                        </span>
-                      )}
-                    </div>
-
-                    {/* Stock */}
-                    <div className="mt-3 text-xs">
-                      {outOfStock ? (
-                        <span className="text-red-400 font-semibold">
-                          Out of stock
-                        </span>
-                      ) : (
-                        <span className="text-emerald-300 font-semibold">
-                          In stock ({p.stock})
-                        </span>
-                      )}
-                    </div>
-
-                    <div className="mt-5">
-                      <span className="inline-flex items-center rounded-full bg-emerald-200 px-4 py-2 text-xs font-extrabold text-black">
+                    {/* ✅ Push button to bottom (equal card height always) */}
+                    <div className="mt-auto pt-5">
+                      <a
+                        href={buildWhatsAppLink(p)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center rounded-full bg-emerald-200 px-4 py-2 text-xs font-extrabold text-black transition hover:scale-[1.03] active:scale-[0.98]"
+                      >
                         Order Now
-                      </span>
+                      </a>
                     </div>
-                  </div>
 
-                  <div className="mt-6 h-px w-full bg-white/10" />
+                    <div className="mt-6 h-px w-full bg-white/10" />
+                  </div>
                 </div>
               );
             })}

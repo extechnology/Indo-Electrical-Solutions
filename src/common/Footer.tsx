@@ -7,17 +7,17 @@ type FooterLink = {
 
 const Footer: React.FC = () => {
   const quickLinks: FooterLink[] = [
-    { label: "About INDO", href: "#" },
-    { label: "Store Locator", href: "#" },
-    { label: "Contact Us", href: "#" },
-    { label: "Careers", href: "#" },
+    { label: "Home", href: "/" },
+    { label: "Indo Exclusive", href: "/exclusive" },
+    { label: "Offers & Schemes", href: "/offers-and-schemes" },
+    { label: "Top Brands", href: "/brands" },
   ];
 
-  const customerService: FooterLink[] = [
-    { label: "Shipping & Delivery", href: "#" },
-    { label: "Returns & Refunds", href: "#" },
-    { label: "Warranty Policy", href: "#" },
-    { label: "FAQs", href: "#" },
+  const contactAddress: FooterLink[] = [
+    { label: "Indo Electric Mart", href: "#" },
+    { label: "Kalluthankadavu, Indo Squre", href: "#" },
+    { label: "Indo Market Road, ", href: "#" },
+    { label: "Calicut - 673004", href: "#" },
   ];
 
   const categories: FooterLink[] = [
@@ -44,17 +44,15 @@ const Footer: React.FC = () => {
             <div className="flex items-center gap-3">
               <img src="/INDO_logo.png" className="w-24" alt="" />
             </div>
-
             <p className="mt-4 text-sm text-[#9AA3AF] leading-6">
               Premium electrical and home appliance solutions built on trust,
               quality, and expert service — powering homes and businesses since
               1965.
             </p>
-
             <div className="mt-5 space-y-2 text-sm">
               <p className="text-white font-semibold">Customer Support</p>
               <p className="text-[#9AA3AF]">
-                Phone: <span className="text-white">+91 98765 43210</span>
+                Phone: <span className="text-white">+91 7664 93 93 93</span>
               </p>
               <p className="text-[#9AA3AF]">
                 Email:{" "}
@@ -65,7 +63,7 @@ const Footer: React.FC = () => {
 
           {/* LINKS */}
           <FooterColumn title="Quick Links" links={quickLinks} />
-          <FooterColumn title="Customer Service" links={customerService} />
+          <FooterColumn title="Contact Address" links={contactAddress} />
           <FooterColumn title="Categories" links={categories} />
         </div>
 

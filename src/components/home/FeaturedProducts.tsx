@@ -124,9 +124,6 @@ const FeaturedProducts: React.FC = () => {
         {!isLoading && featuredProducts.length === 0 && (
           <div className="mt-6 rounded-2xl border border-white/10 bg-white/5 p-8 text-center">
             <p className="text-lg font-bold">No featured products found</p>
-            <p className="mt-2 text-sm text-white/60">
-              Please add featured products from admin.
-            </p>
           </div>
         )}
 
@@ -172,9 +169,9 @@ const FeaturedProducts: React.FC = () => {
                     draggable={false}
                     loading="lazy"
                   />
-                  <p className="absolute right-4 bottom-4 px-3 py-1 rounded-2xl bg-linear-to-r from-slate-950 to-gray-800 text-xs text-white ">
+                  {/* <p className="absolute right-4 bottom-4 px-3 py-1 rounded-2xl bg-linear-to-r from-slate-950 to-gray-800 text-xs text-white ">
                     Stock : {p.stock}
-                  </p>
+                  </p> */}
                   <div className="absolute inset-0 bg-linear-to-b from-transparent via-transparent to-black/35" />
                 </div>
 
@@ -194,17 +191,19 @@ const FeaturedProducts: React.FC = () => {
                   </p>
 
                   {/* Price */}
-                  <div className="mt-3 flex items-end gap-2">
-                    <p className="text-white font-bold text-lg">
-                      {formatINR(p.price)}
-                    </p>
-
-                    {p.oldPrice ? (
-                      <p className="text-sm text-white/40 line-through">
-                        {formatINR(p.oldPrice)}
+                  {p?.price && (
+                    <div className="mt-3 flex items-end gap-2">
+                      <p className="text-white font-bold text-lg">
+                        {formatINR(p.price)}
                       </p>
-                    ) : null}
-                  </div>
+
+                      {p.oldPrice && (
+                        <p className="text-sm text-white/40 line-through">
+                          {formatINR(p.oldPrice)}
+                        </p>
+                      )}
+                    </div>
+                  )}
 
                   <div>
                     <p className="mt-1 text-white font-light text-xs leading-snug line-clamp-2">
