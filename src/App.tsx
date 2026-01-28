@@ -19,7 +19,9 @@ function App() {
   return (
     <>
       <Router>
-        <Navbar />
+        <div className="pb-20 bg-black">
+          <Navbar />
+        </div>
         <Suspense fallback={<Loader />}>
           <Routes>
             <Route path="/" element={<Home />} />

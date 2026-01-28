@@ -26,3 +26,9 @@ export const getLatestLaunches = async () => {
   const res = await axiosInstance.get("/api/latest-launches/");
   return res.data;
 };
+
+
+export const getOffersAndSchemes = async () => {
+  const res = await axiosInstance.get("/api/offers-and-schemes/");
+  return res.data;
+};
