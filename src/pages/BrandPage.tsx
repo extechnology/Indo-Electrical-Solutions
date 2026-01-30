@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useBrands } from "../hooks/useBrands";
 import { useProducts } from "../hooks/useProducts";
 import { Link } from "react-router-dom";
@@ -58,10 +58,28 @@ const BrandPage: React.FC = () => {
   const { data: brandsData, isLoading: brandsLoading } = useBrands();
   const { data: productsData, isLoading: productsLoading } = useProducts();
 
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const media = window.matchMedia("(max-width: 767px)");
+
+    const handleChange = () => setIsMobile(media.matches);
+
+    handleChange();
+    media.addEventListener("change", handleChange);
+
+    return () => media.removeEventListener("change", handleChange);
+  }, []);
+
   const { data: banners = [] } = useBanners();
-    const brandBanner: HomeBanner | undefined = banners?.find(
-      (b: HomeBanner) => b.banner_type === "TOP_BRANDS",
+
+  const brandBanner: HomeBanner | undefined = useMemo(() => {
+    const type = isMobile ? "TOP_BRANDS_MOBILE" : "TOP_BRANDS";
+
+    return banners?.find(
+      (b: HomeBanner) => b.banner_type === type && b.is_active,
     );
+  }, [banners, isMobile]);
 
   const [brandQuery, setBrandQuery] = useState("");
   const [selectedBrandIds, setSelectedBrandIds] = useState<number[]>([]);
@@ -138,6 +156,13 @@ const BrandPage: React.FC = () => {
   const clearBrands = () => setSelectedBrandIds([]);
 
   const loading = brandsLoading || productsLoading;
+
+  const WHATSAPP_NUMBER = "917664939393"; 
+
+  const buildWhatsAppLink = (product: any) => {
+    const message = `Hi, I am interested in this product:\n\n${product.name}\n\nProduct ID: ${product.id}`;
+    return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
+  };
 
   return (
     <div className="min-h-screen bg-[#0B0B0D] text-white">
@@ -413,20 +438,19 @@ const BrandPage: React.FC = () => {
                   const outOfStock = p.stock <= 0;
 
                   return (
-                    <Link
+                    <div
                       key={p.id}
-                      to={`/product/${p.slug}`}
                       className="group rounded-2xl border border-white/10 bg-white/5 hover:bg-white/10 transition overflow-hidden"
                     >
                       {/* image */}
-                      <div className="relative h-52 w-full bg-black/30 overflow-hidden">
+                      <div className="relative flex justify-center items-center  w-full bg-white overflow-hidden">
                         <img
                           src={
                             p.image ||
                             "https://via.placeholder.com/600x400?text=No+Image"
                           }
                           alt={p.name}
-                          className="h-full w-full object-cover group-hover:scale-105 transition duration-500"
+                          className="h-72  object-cover group-hover:scale-105 transition duration-500"
                         />
 
                         {discount !== null && (
@@ -446,17 +470,26 @@ const BrandPage: React.FC = () => {
                           {p.name}
                         </h4>
 
-                        <div className="mt-3 flex items-center justify-between">
-                          <div className="flex items-center gap-2">
-                            <span className="text-xl font-medium">
-                              ₹{formatINR(price)}
-                            </span>
-                            {old && (
-                              <span className="text-xs text-white/40 line-through">
-                                ₹{formatINR(old)}
+                        <div className=" flex items-center justify-between">
+                          {price != null && price > 0 && (
+                            <div className="mt-3 flex flex-wrap items-center gap-3">
+                              <span className="text-2xl font-medium tracking-tight text-white">
+                                ₹{formatINR(price)}
                               </span>
-                            )}
-                          </div>
+
+                              {!!old && old > 0 && (
+                                <span className="text-sm text-white/40 line-through">
+                                  ₹{formatINR(old)}
+                                </span>
+                              )}
+
+                              {discount != null && discount > 0 && (
+                                <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-bold text-white">
+                                  {discount}% Off
+                                </span>
+                              )}
+                            </div>
+                          )}
 
                           <span className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-black/30 px-3 py-1 text-xs font-bold text-white/80">
                             <Star className="w-4 h-4 text-yellow-400" />
@@ -477,12 +510,17 @@ const BrandPage: React.FC = () => {
                         </div>
 
                         <div className="mt-4">
-                          <button className="w-full rounded-xl bg-[#E02C2C] px-4 py-3 text-sm font-medium text-white hover:bg-[#B91C1C] transition">
-                            View Product
-                          </button>
+                          <a
+                            href={buildWhatsAppLink(p)}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="w-full rounded-xl bg-linear-to-r from-red-500/80 to-red-500/40 px-4 py-3 text-sm font-medium text-white hover:bg-[#B91C1C] transition"
+                          >
+                            Order Now
+                          </a>
                         </div>
                       </div>
-                    </Link>
+                    </div>
                   );
                 })}
               </div>

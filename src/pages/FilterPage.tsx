@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect } from "react";
+import React, { useMemo, useState, useEffect,useRef } from "react";
 import { useProducts } from "../hooks/useProducts";
 import { useParams } from "react-router-dom";
 import { useBrands } from "../hooks/useBrands";
@@ -66,6 +66,8 @@ const FilterPage: React.FC = () => {
   const { category } = useParams(); // ✅ slug from route
   const { data: productss, isLoading: productsLoading } = useProducts();
   const { data: brands, isLoading: brandsLoading } = useBrands();
+const [openDescId, setOpenDescId] = useState<number | null>(null);
+const tooltipRef = useRef<HTMLDivElement | null>(null);
 
   // ✅ Filters state
   const [selectedCategory, setSelectedCategory] = useState<string>("All"); // category slug
@@ -227,6 +229,21 @@ const FilterPage: React.FC = () => {
     setSort("Relevance");
   };
 
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (
+        tooltipRef.current &&
+        !tooltipRef.current.contains(e.target as Node)
+      ) {
+        setOpenDescId(null);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+
   // ✅ Reset dropdown category when URL category changes
   useEffect(() => {
     setSelectedCategory("All");
@@ -238,9 +255,29 @@ const FilterPage: React.FC = () => {
     return matched?.name || category;
   }, [category, categoryOptions]);
 
+
+  const renderDescription = (desc: string) => {
+    if (!desc.includes("#")) return <p>{desc}</p>;
+
+    const points = desc
+      .split("#")
+      .map((d) => d.trim())
+      .filter(Boolean);
+
+    return (
+      <ul className="list-disc pl-4 space-y-1">
+        {points.map((pt, i) => (
+          <li key={i}>{pt}</li>
+        ))}
+      </ul>
+    );
+  };
+
+
+
   const loading = productsLoading || brandsLoading;
 
-  const WHATSAPP_NUMBER = "917664939393"; // ✅ your number with country code (no +)
+  const WHATSAPP_NUMBER = "917664939393";
 
   const buildWhatsAppLink = (product: any) => {
     const message = `Hi, I am interested in this product:\n\n${product.name}\n\nProduct ID: ${product.id}`;
@@ -411,23 +448,39 @@ const FilterPage: React.FC = () => {
                       <span className="text-white/60">{p.category?.name}</span>
                     </div>
 
-                    {/* Description (clamped) + hover full preview */}
+                    {/* Description */}
                     {p.description?.trim() ? (
                       <div className="relative mt-2">
                         <p className="text-xs text-white/50 line-clamp-2">
                           {p.description}
                         </p>
 
-                        {/* ✅ Full description tooltip (opens UP) */}
+                        <button
+                          onClick={() =>
+                            setOpenDescId(openDescId === p.id ? null : p.id)
+                          }
+                          className="mt-1 text-xs font-semibold text-emerald-300 hover:underline"
+                        >
+                          View more
+                        </button>
+
+                        {/* Tooltip */}
                         <div
-                          className="
-        pointer-events-none absolute left-0 bottom-full z-30 mb-2 w-full
-        opacity-0 translate-y-1 transition
-        group-hover:opacity-100 group-hover:translate-y-0
-      "
+                          ref={openDescId === p.id ? tooltipRef : null}
+                          className={`
+        absolute left-0 bottom-full z-30 mb-2 w-full
+        transition-all duration-300
+        ${
+          openDescId === p.id
+            ? "opacity-100 translate-y-0"
+            : "opacity-0 translate-y-2 pointer-events-none"
+        }
+      `}
                         >
                           <div className="rounded-lg border border-white/10 bg-black/80 p-3 text-xs text-white/90 backdrop-blur-md shadow-lg">
-                            <p className="leading-relaxed">{p.description}</p>
+                            <div className="leading-relaxed">
+                              {renderDescription(p.description)}
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -436,19 +489,19 @@ const FilterPage: React.FC = () => {
                     )}
 
                     {/* Price block */}
-                    {price && (
+                    {price != null && price > 0 && (
                       <div className="mt-3 flex flex-wrap items-center gap-3">
                         <span className="text-2xl font-medium tracking-tight text-white">
                           ₹{formatINR(price)}
                         </span>
 
-                        {!!oldPrice && (
+                        {!!oldPrice && oldPrice > 0 && (
                           <span className="text-sm text-white/40 line-through">
                             ₹{formatINR(oldPrice)}
                           </span>
                         )}
 
-                        {discountPercent !== null && (
+                        {discountPercent != null && discountPercent > 0 && (
                           <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-bold text-white">
                             {discountPercent}% Off
                           </span>
@@ -458,7 +511,7 @@ const FilterPage: React.FC = () => {
 
                     {/* Min order quantity */}
                     {p.min_order_quantity && (
-                      <span className="mt-2 text-xs text-white/50">
+                      <span className="mt-2 text-sm font-semibold text-white/80">
                         Min Order Quantity: {p.min_order_quantity}
                       </span>
                     )}

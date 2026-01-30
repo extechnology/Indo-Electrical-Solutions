@@ -16,11 +16,29 @@ const Hero: React.FC = () => {
   const [activeIndex, setActiveIndex] = useState(0);
   console.log(banners,"banners");
 
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const media = window.matchMedia("(max-width: 767px)");
+
+    const handleChange = () => setIsMobile(media.matches);
+
+    handleChange(); // initial check
+    media.addEventListener("change", handleChange);
+
+    return () => media.removeEventListener("change", handleChange);
+  }, []);
+
   // ✅ Build slides from API banners
   const slides: Slide[] = useMemo(() => {
+    const type = isMobile ? "HERO_MOBILE" : "HERO";
+
     const heroBanners = (banners || [])
-      .filter((b: HomeBanner) => b.banner_type === "HERO" && b.is_active)
-      .sort((a: HomeBanner, b: HomeBanner) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+      .filter((b: HomeBanner) => b.banner_type === type && b.is_active)
+      .sort(
+        (a: HomeBanner, b: HomeBanner) =>
+          (a.sort_order ?? 0) - (b.sort_order ?? 0),
+      );
 
     if (heroBanners.length === 0) {
       return [
@@ -37,13 +55,13 @@ const Hero: React.FC = () => {
 
     return heroBanners.map((b: HomeBanner) => ({
       id: String(b.id),
-      title: b.title ?? "", // ✅ null-safe (no default)
-      subtitle: b.description ?? "", // ✅ empty safe
+      title: b.title ?? "",
+      subtitle: b.description ?? "",
       image: b.image || "/banner1.jpg",
       ctaText: "Explore Products",
       ctaLink: "/products",
     }));
-  }, [banners]);
+  }, [banners, isMobile]);
 
   // ✅ Reset activeIndex when slides change (important)
   useEffect(() => {

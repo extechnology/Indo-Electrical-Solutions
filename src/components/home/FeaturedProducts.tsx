@@ -161,7 +161,7 @@ const FeaturedProducts: React.FC = () => {
                 onClick={() => navigate(`/filter/${p?.categorySlug}`)}
               >
                 {/* Image */}
-                <div className="relative h-[210px] w-full bg-[#0B0B0D] flex items-center justify-center">
+                <div className="relative h-[210px] w-full bg-white flex items-center justify-center">
                   <img
                     src={p.image}
                     alt={p.name}

@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import {
   BadgePercent,
   Sparkles,
@@ -35,9 +35,31 @@ const OffersSchemesPage: React.FC = () => {
   const [activeType, setActiveType] = useState<OfferType>("All");
   const { data: offers = [] } = useOffers();
   const { data: banners = [] } = useBanners();
-  const OffersBanner: HomeBanner | undefined = banners?.find(
-    (b: HomeBanner) => b.banner_type === "OFFERS",
-  );
+
+  const [isMobile, setIsMobile] = useState(false);
+
+  // const [activeTab, setActiveTab] = useState<
+  //   "Featured" | "New Launches" | "Top Deals"
+  // >("Featured");
+
+  useEffect(() => {
+    const media = window.matchMedia("(max-width: 767px)");
+
+    const handleChange = () => setIsMobile(media.matches);
+
+    handleChange();
+    media.addEventListener("change", handleChange);
+
+    return () => media.removeEventListener("change", handleChange);
+  }, []);
+
+  const OffersBanner: HomeBanner | undefined = useMemo(() => {
+    const type = isMobile ? "OFFERS_MOBILE" : "OFFERS";
+
+    return banners?.find(
+      (b: HomeBanner) => b.banner_type === type && b.is_active,
+    );
+  }, [banners, isMobile]);
 
   const offerTypes: { label: OfferType; icon: React.ReactNode }[] = [
     { label: "All", icon: <Sparkles className="w-4 h-4" /> },

@@ -87,13 +87,17 @@ export type ProductsResponse = ApiProduct[];
 export type BrandsResponse = Brand[];
 export type CategoriesResponse = ApiCategory[];
 
-export type BannerType = "HERO" | "EXCLUSIVE" | "TOP_BRANDS" | "OFFERS";
+export type BannerType = "HERO" | "EXCLUSIVE" | "TOP_BRANDS" | "OFFERS" | "HERO_MOBILE" | "OFFERS_MOBILE" | "TOP_BRANDS_MOBILE" | "EXCLUSIVE_MOBILE";
 
 export const BANNER_TYPE_LABEL: Record<BannerType, string> = {
   HERO: "Hero Carousel",
   EXCLUSIVE: "Exclusive Banner",
   TOP_BRANDS: "Top Brands Banner",
   OFFERS: "Offers Banner",
+  HERO_MOBILE: "Hero Mobile Banner",
+  OFFERS_MOBILE: "Offers Mobile Banner",
+  TOP_BRANDS_MOBILE: "Top Brands Mobile Banner",
+  EXCLUSIVE_MOBILE: "Exclusive Mobile Banner",
 };
 
 

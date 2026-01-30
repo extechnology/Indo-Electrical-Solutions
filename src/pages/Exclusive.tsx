@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import {
   Sparkles,
@@ -47,14 +47,30 @@ const Exclusive: React.FC = () => {
   const { data: brands = [] } = useBrands();
   const { data: banners = [] } = useBanners();
   console.log(banners, "banners");
+  const [isMobile, setIsMobile] = useState(false);
 
-  const exclusiveBanner: HomeBanner | undefined = banners?.find(
-    (b: HomeBanner) => b.banner_type === "EXCLUSIVE",
-  );
+  const exclusiveBanner: HomeBanner | undefined = useMemo(() => {
+    const type = isMobile ? "EXCLUSIVE_MOBILE" : "EXCLUSIVE";
 
-  const [activeTab, setActiveTab] = useState<
-    "Featured" | "New Launches" | "Top Deals"
-  >("Featured");
+    return banners?.find(
+      (b: HomeBanner) => b.banner_type === type && b.is_active,
+    );
+  }, [banners, isMobile]);
+
+  // const [activeTab, setActiveTab] = useState<
+  //   "Featured" | "New Launches" | "Top Deals"
+  // >("Featured");
+
+  useEffect(() => {
+    const media = window.matchMedia("(max-width: 767px)");
+
+    const handleChange = () => setIsMobile(media.matches);
+
+    handleChange();
+    media.addEventListener("change", handleChange);
+
+    return () => media.removeEventListener("change", handleChange);
+  }, []);
 
   // ✅ Brand filter (top strip)
   const [activeBrandId, setActiveBrandId] = useState<number | "ALL">("ALL");
@@ -262,7 +278,7 @@ const Exclusive: React.FC = () => {
           </div>
 
           {/* Tabs (you can connect later) */}
-          <div className="flex gap-2 rounded-2xl border border-white/10 bg-white/5 p-2">
+          {/* <div className="flex gap-2 rounded-2xl border border-white/10 bg-white/5 p-2">
             {(["Featured", "New Launches", "Top Deals"] as const).map((t) => {
               const active = t === activeTab;
               return (
@@ -279,7 +295,7 @@ const Exclusive: React.FC = () => {
                 </button>
               );
             })}
-          </div>
+          </div> */}
         </div>
 
         {/* ✅ Products Grid */}
@@ -299,17 +315,16 @@ const Exclusive: React.FC = () => {
               );
 
               return (
-                <Link
-                  to={`/product/${p.slug}`}
+                <div
                   key={p.id}
                   className="group rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 transition overflow-hidden"
                 >
                   {/* Image */}
-                  <div className="relative h-56 w-full overflow-hidden bg-black/30">
+                  <div className="relative w-full flex justify-center overflow-hidden bg-white">
                     <img
                       src={p.image}
                       alt={p.name}
-                      className="h-full w-full object-cover group-hover:scale-105 transition duration-500"
+                      className="h-70 object-cover group-hover:scale-105 transition duration-500"
                     />
                   </div>
 
@@ -331,36 +346,40 @@ const Exclusive: React.FC = () => {
                       <span className="text-white/50">Exclusive Verified</span>
                     </div>
 
-                    <div className="mt-4 flex flex-wrap items-center gap-3">
-                      <span className="text-2xl font-medium">
-                        ₹{formatINR(p.priceNumber)}
-                      </span>
-
-                      {p.oldPriceNumber ? (
-                        <span className="text-sm text-white/40 line-through">
-                          ₹{formatINR(p.oldPriceNumber)}
+                    {p.priceNumber != null && p.priceNumber > 0 && (
+                      <div className="mt-3 flex flex-wrap items-center gap-3">
+                        <span className="text-2xl font-medium tracking-tight text-white">
+                          ₹{formatINR(p.priceNumber)}
                         </span>
-                      ) : null}
 
-                      {discount !== null ? (
-                        <span className="rounded-full border border-white/10 bg-black/30 px-3 py-1 text-xs font-bold text-white/80">
-                          {discount}% Off
-                        </span>
-                      ) : null}
-                    </div>
+                        {!!p.oldPriceNumber && p.oldPriceNumber > 0 && (
+                          <span className="text-sm text-white/40 line-through">
+                            ₹{formatINR(p.oldPriceNumber)}
+                          </span>
+                        )}
 
-                    <div className="mt-5 w-full">
+                        {discount != null && discount > 0 && (
+                          <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-bold text-white">
+                            {discount}% Off
+                          </span>
+                        )}
+                      </div>
+                    )}
+
+                    
+
+                    <div className="mt-5  mb-3 w-full">
                       <a
                         href={buildWhatsAppLink(p)}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="w-full rounded-lg bg-[#E02C2C] px-4 py-3 text-sm font-bold text-white hover:bg-[#B91C1C] transition"
+                        className="w-full rounded-lg bg-linear-to-r from-red-500/80 to-red-500/40 px-4 py-3 text-sm font-bold text-white hover:bg-[#B91C1C] transition"
                       >
                         Order Now
                       </a>
                     </div>
                   </div>
-                </Link>
+                </div>
               );
             })}
           </div>
