@@ -1,7 +1,9 @@
-import React, { useMemo, useState, useEffect,useRef } from "react";
+import React, { useMemo, useState, useEffect, useRef } from "react";
 import { useProducts } from "../hooks/useProducts";
 import { useParams } from "react-router-dom";
 import { useBrands } from "../hooks/useBrands";
+import { useCategories } from "../hooks/useCategories";
+import type { ApiCategory } from "../types";
 
 type DeliveryMode = "Home Delivery" | "Store Pickup";
 type SortMode =
@@ -10,16 +12,6 @@ type SortMode =
   | "Price: High to Low"
   | "Rating"
   | "Newest";
-
-type ApiCategory = {
-  id: number;
-  name: string;
-  slug: string;
-  parent: number | null;
-  is_active: boolean;
-  category_type?: string;
-  full_path?: string;
-};
 
 type ApiBrand = {
   id: number;
@@ -63,15 +55,19 @@ const calcDiscountPercent = (oldPrice?: number, price?: number) => {
 };
 
 const FilterPage: React.FC = () => {
-  const { category } = useParams(); // ✅ slug from route
+  const { category } = useParams();
   const { data: productss, isLoading: productsLoading } = useProducts();
   const { data: brands, isLoading: brandsLoading } = useBrands();
-const [openDescId, setOpenDescId] = useState<number | null>(null);
-const tooltipRef = useRef<HTMLDivElement | null>(null);
+  const { data: categories } = useCategories();
+  const [openDescId, setOpenDescId] = useState<number | null>(null);
+  const tooltipRef = useRef<HTMLDivElement | null>(null);
 
-  // ✅ Filters state
-  const [selectedCategory, setSelectedCategory] = useState<string>("All"); // category slug
-  const [selectedBrand, setSelectedBrand] = useState<string>("All"); // brand name
+  const PAGE_SIZE = 12;
+
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const [selectedCategory, setSelectedCategory] = useState<string>("All");
+  const [selectedBrand, setSelectedBrand] = useState<string>("All");
   const [priceRange, setPriceRange] = useState<
     "All" | "Under 40k" | "40k - 70k" | "70k+"
   >("All");
@@ -83,42 +79,35 @@ const tooltipRef = useRef<HTMLDivElement | null>(null);
   >("All");
   const [sort, setSort] = useState<SortMode>("Relevance");
 
-  // ✅ Convert API products into safe array
   const allProducts: ApiProduct[] = useMemo(() => {
     return Array.isArray(productss) ? productss : [];
   }, [productss]);
 
-  /**
-   * ✅ MAIN FILTER: category slug from URL
-   * Example route: /products/:category
-   * category = "electrical-wires"
-   */
+  const leafCategories = categories?.filter(
+    (leaf: ApiCategory) => leaf.category_type === "LEAF",
+  );
+
   const productsByUrlCategory = useMemo(() => {
-    if (!category) return allProducts; // if no category in url show all
+    if (!category) return allProducts;
+
     return allProducts.filter((p) => p?.category?.slug === category);
   }, [allProducts, category]);
 
-  /**
-   * ✅ Dropdown options should come from filtered products list
-   * so it feels "relevant" like Croma filters.
-   */
   const categoryOptions = useMemo(() => {
-    const uniqueMap = new Map<string, { name: string; slug: string }>();
+    if (!leafCategories?.length) {
+      return [{ name: "All", slug: "All" }];
+    }
 
-    productsByUrlCategory.forEach((p) => {
-      if (p?.category?.slug) {
-        uniqueMap.set(p.category.slug, {
-          name: p.category.name,
-          slug: p.category.slug,
-        });
-      }
-    });
-
-    return [{ name: "All", slug: "All" }, ...Array.from(uniqueMap.values())];
-  }, [productsByUrlCategory]);
+    return [
+      { name: "All", slug: "All" },
+      ...leafCategories.map((c: ApiCategory) => ({
+        name: c.full_path || c.name, // nice UX if available
+        slug: c.slug,
+      })),
+    ];
+  }, [leafCategories]);
 
   const brandOptions = useMemo(() => {
-    // Prefer backend brands hook, fallback to products
     const hookBrands = Array.isArray(brands)
       ? brands.filter((b: ApiBrand) => b.is_active)
       : [];
@@ -134,29 +123,22 @@ const tooltipRef = useRef<HTMLDivElement | null>(null);
     return ["All", ...unique];
   }, [brands, productsByUrlCategory]);
 
-  /**
-   * ✅ Apply Filters (Category dropdown, Brand dropdown, Price, Discount, Sort)
-   */
   const filteredProducts = useMemo(() => {
-    let list = [...productsByUrlCategory];
+    let list = [...allProducts];
 
-    // ✅ Category dropdown filter (slug)
+    if (category) {
+      list = list.filter((p) => p.category?.slug === category);
+    }
+
     if (selectedCategory !== "All") {
       list = list.filter((p) => p.category?.slug === selectedCategory);
     }
 
-    // ✅ Brand dropdown filter (brand name)
     if (selectedBrand !== "All") {
       list = list.filter((p) => p.brand?.name === selectedBrand);
     }
-
-    // ✅ Delivery Mode filter (you don't have this in API now)
-    // For now we skip it, but keep structure.
     if (selectedDelivery !== "All") {
-      // Later: list = list.filter(...)
     }
-
-    // ✅ Price range filter
     if (priceRange !== "All") {
       list = list.filter((p) => {
         const price = Number(p.price);
@@ -170,7 +152,7 @@ const tooltipRef = useRef<HTMLDivElement | null>(null);
       });
     }
 
-    // ✅ Discount filter
+    //  Discount filter
     if (selectedDiscount !== "All") {
       list = list.filter((p) => {
         const price = Number(p.price);
@@ -184,7 +166,7 @@ const tooltipRef = useRef<HTMLDivElement | null>(null);
       });
     }
 
-    // ✅ Sorting
+    //  Sorting
     list.sort((a, b) => {
       const aPrice = Number(a.price) || 0;
       const bPrice = Number(b.price) || 0;
@@ -194,7 +176,6 @@ const tooltipRef = useRef<HTMLDivElement | null>(null);
       if (sort === "Price: High to Low") return bPrice - aPrice;
 
       if (sort === "Rating") {
-        // rating not in API currently
         return 0;
       }
 
@@ -230,6 +211,25 @@ const tooltipRef = useRef<HTMLDivElement | null>(null);
   };
 
   useEffect(() => {
+    setCurrentPage(1);
+  }, [
+    selectedCategory,
+    selectedBrand,
+    priceRange,
+    selectedDiscount,
+    selectedDelivery,
+    sort,
+    category,
+  ]);
+
+  const totalPages = Math.ceil(filteredProducts.length / PAGE_SIZE);
+
+  const paginatedProducts = useMemo(() => {
+    const start = (currentPage - 1) * PAGE_SIZE;
+    return filteredProducts.slice(start, start + PAGE_SIZE);
+  }, [filteredProducts, currentPage]);
+
+  useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (
         tooltipRef.current &&
@@ -243,8 +243,6 @@ const tooltipRef = useRef<HTMLDivElement | null>(null);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-
-  // ✅ Reset dropdown category when URL category changes
   useEffect(() => {
     setSelectedCategory("All");
   }, [category]);
@@ -254,7 +252,6 @@ const tooltipRef = useRef<HTMLDivElement | null>(null);
     const matched = categoryOptions.find((c) => c.slug === category);
     return matched?.name || category;
   }, [category, categoryOptions]);
-
 
   const renderDescription = (desc: string) => {
     if (!desc.includes("#")) return <p>{desc}</p>;
@@ -272,8 +269,6 @@ const tooltipRef = useRef<HTMLDivElement | null>(null);
       </ul>
     );
   };
-
-
 
   const loading = productsLoading || brandsLoading;
 
@@ -320,7 +315,7 @@ const tooltipRef = useRef<HTMLDivElement | null>(null);
               onChange={(e) => setSelectedCategory(e.target.value)}
               className="cursor-pointer rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs font-semibold text-white outline-none hover:bg-white/10 transition"
             >
-              {categoryOptions.map((c) => (
+              {leafCategories.map((c: ApiCategory) => (
                 <option key={c.slug} value={c.slug} className="bg-[#0B0B0D]">
                   Categories: {c.name}
                 </option>
@@ -406,7 +401,7 @@ const tooltipRef = useRef<HTMLDivElement | null>(null);
         {/* Products Grid */}
         {!loading && (
           <div className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-4">
-            {filteredProducts.map((p) => {
+            {paginatedProducts.map((p) => {
               const price = Number(p.price) || 0;
               const oldPrice = p.old_price ? Number(p.old_price) : undefined;
 
@@ -492,12 +487,12 @@ const tooltipRef = useRef<HTMLDivElement | null>(null);
                     {price != null && price > 0 && (
                       <div className="mt-3 flex flex-wrap items-center gap-3">
                         <span className="text-2xl font-medium tracking-tight text-white">
-                          ₹{formatINR(price)}
+                          ₹ {formatINR(price)}
                         </span>
 
                         {!!oldPrice && oldPrice > 0 && (
                           <span className="text-sm text-white/40 line-through">
-                            ₹{formatINR(oldPrice)}
+                            ₹ {formatINR(oldPrice)}
                           </span>
                         )}
 
@@ -533,6 +528,42 @@ const tooltipRef = useRef<HTMLDivElement | null>(null);
                 </div>
               );
             })}
+          </div>
+        )}
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="mt-10 flex items-center justify-center gap-2">
+            <button
+              disabled={currentPage === 1}
+              onClick={() => setCurrentPage((p) => p - 1)}
+              className="px-4 py-2 text-sm rounded-lg border border-white/10 bg-white/5 disabled:opacity-40"
+            >
+              Prev
+            </button>
+
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+              <button
+                key={page}
+                onClick={() => setCurrentPage(page)}
+                className={`px-4 py-2 text-sm rounded-lg border
+          ${
+            currentPage === page
+              ? "bg-white text-black"
+              : "border-white/10 bg-white/5"
+          }`}
+              >
+                {page}
+              </button>
+            ))}
+
+            <button
+              disabled={currentPage === totalPages}
+              onClick={() => setCurrentPage((p) => p + 1)}
+              className="px-4 py-2 text-sm rounded-lg border border-white/10 bg-white/5 disabled:opacity-40"
+            >
+              Next
+            </button>
           </div>
         )}
 
