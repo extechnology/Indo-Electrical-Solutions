@@ -124,6 +124,7 @@ const FilterPage: React.FC = () => {
   }, [brands, productsByUrlCategory]);
 
   const filteredProducts = useMemo(() => {
+
     let list = [...allProducts];
 
     if (category) {
@@ -137,8 +138,10 @@ const FilterPage: React.FC = () => {
     if (selectedBrand !== "All") {
       list = list.filter((p) => p.brand?.name === selectedBrand);
     }
+
     if (selectedDelivery !== "All") {
     }
+
     if (priceRange !== "All") {
       list = list.filter((p) => {
         const price = Number(p.price);
@@ -152,7 +155,6 @@ const FilterPage: React.FC = () => {
       });
     }
 
-    //  Discount filter
     if (selectedDiscount !== "All") {
       list = list.filter((p) => {
         const price = Number(p.price);
