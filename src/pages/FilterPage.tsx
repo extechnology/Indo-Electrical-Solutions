@@ -201,7 +201,7 @@ const FilterPage: React.FC = () => {
     sort,
   ]);
 
-  // const activeCount = filteredProducts.length;
+  // const activeCount = filteredProducts.length; 
 
   const clearAll = () => {
     setSelectedCategory("All");
@@ -317,7 +317,7 @@ const FilterPage: React.FC = () => {
               onChange={(e) => setSelectedCategory(e.target.value)}
               className="cursor-pointer rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs font-semibold text-white outline-none hover:bg-white/10 transition"
             >
-              {leafCategories.map((c: ApiCategory) => (
+              {leafCategories?.map((c: ApiCategory) => (
                 <option key={c.slug} value={c.slug} className="bg-[#0B0B0D]">
                   Categories: {c.name}
                 </option>

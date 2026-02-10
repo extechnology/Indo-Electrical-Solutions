@@ -25,11 +25,12 @@ type ApiCategory = {
   is_active: boolean;
   category_type?: "MAIN" | "SUB" | "LEAF";
   full_path?: string;
+  image?: string | null;
 };
 
 const getCategoryIcon = (category: ApiCategory) => {
-  const slug = category.slug.toLowerCase();
-  const name = category.name.toLowerCase();
+  const slug = category?.slug.toLowerCase();
+  const name = category?.name.toLowerCase();
   const full = (category.full_path || "").toLowerCase();
 
   // ✅ Prefer slug check (most reliable)
@@ -65,8 +66,8 @@ const getCategoryIcon = (category: ApiCategory) => {
 };
 
 const getCategoryGradient = (category: ApiCategory) => {
-  const slug = category.slug.toLowerCase();
-  const full = (category.full_path || "").toLowerCase();
+  const slug = category?.slug.toLowerCase();
+  const full = (category?.full_path || "").toLowerCase();
 
   if (slug.includes("electrical") || full.includes("electrical"))
     return "from-blue-500/20 to-blue-600/10";
@@ -91,8 +92,10 @@ const CategoryDisplay: React.FC = () => {
   // ✅ Show only ACTIVE + MAIN categories
   const mainCategories = useMemo(() => {
     const arr = Array.isArray(categories) ? (categories as ApiCategory[]) : [];
-    return arr.filter((c) => c.is_active && c.category_type === "LEAF");
+    return arr.filter((c) => c?.is_active && c?.category_type === "LEAF");
   }, [categories]);
+
+  console.log(mainCategories,"main")
 
   const scroll = (direction: "left" | "right") => {
     if (!scrollContainerRef.current) return;
@@ -164,55 +167,114 @@ const CategoryDisplay: React.FC = () => {
         >
           <div className="flex gap-3 lg:gap-5 w-max px-1">
             {mainCategories.map((category, index) => {
-              const icon = getCategoryIcon(category);
               const gradient = getCategoryGradient(category);
 
               return (
                 <button
                   key={category.id}
-                  onClick={() => navigate(`/filter/${category.slug}`)}
-                  className="group cursor-pointer relative shrink-0 w-[90px] h-[90px] sm:w-[110px] sm:h-[110px]"
+                  onClick={() => navigate(`/filter/${category?.slug}`)}
+                  className="
+    group
+    relative
+    shrink-0
+    w-[88px] h-[104px]
+    sm:w-[108px] sm:h-[124px]
+    lg:w-[128px] lg:h-[144px]
+    focus:outline-none
+  "
                   style={{
-                    animation: `fadeInUp 0.5s ease-out ${index * 0.08}s both`,
+                    animation: `fadeInUp 0.45s cubic-bezier(.22,.61,.36,1) ${
+                      index * 0.07
+                    }s both`,
                   }}
                 >
                   <div
                     className="
-                      h-full w-full
-                      relative overflow-hidden rounded-3xl
-                      bg-linear-to-br from-slate-800/40 to-slate-900/40
-                      backdrop-blur-sm border border-slate-700/50
-                      transition-all duration-500
-                      hover:scale-105 hover:shadow-2xl hover:shadow-blue-500/20 hover:border-blue-500/50
-                      flex items-center justify-center
-                      p-5
-                    "
+      relative h-full w-full
+      rounded-3xl
+      bg-linear-to-br from-slate-800/50 to-slate-900/60
+      border border-slate-700/50
+      backdrop-blur-md
+      shadow-lg
+      transition-all duration-300
+      group-hover:scale-[1.04]
+      group-hover:border-blue-500/50
+      group-hover:shadow-blue-500/25
+      overflow-hidden
+      flex flex-col items-center justify-center
+      px-3 py-4
+    "
                   >
                     {/* Hover Gradient */}
                     <div
-                      className={`absolute inset-0 bg-linear-to-br ${gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-500`}
+                      className={`absolute inset-0 bg-linear-to-br ${gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-300`}
                     />
 
-                    {/* Shine */}
-                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                      <div className="absolute inset-0 bg-linear-to-tr from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+                    {/* Soft Shine */}
+                    <div className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                      <div className="absolute inset-y-0 left-0 w-1/2 bg-linear-to-r from-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
                     </div>
 
                     {/* Content */}
-                    <div className="relative z-10 flex flex-col items-center justify-center text-center">
-                      <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-2xl bg-slate-800/50 group-hover:bg-slate-700/50 transition-all duration-300 group-hover:scale-110 group-hover:rotate-3">
-                        <div className="text-slate-300 group-hover:text-white transition-colors duration-300">
-                          {icon}
-                        </div>
+                    <div className="relative z-10 flex flex-col items-center gap-2 text-center">
+                      {/* Image / Icon */}
+                      <div
+                        className="
+          relative
+          h-20 w-20
+          sm:h-16 sm:w-16
+          lg:h-20 lg:w-20
+          rounded-2xl
+          bg-slate-800/60
+          border border-slate-700/50
+          shadow-md
+          flex items-center justify-center
+          overflow-hidden
+          transition-transform duration-300
+          group-hover:scale-110 group-hover:rotate-2  
+        "
+                      >
+                        {category?.image ? (
+                          <>
+                            <img
+                              src={category?.image}
+                              alt={category?.name}
+                              loading="lazy"
+                              className="
+                h-full w-full
+                object-contain
+                transition-transform duration-300
+                group-hover:scale-105
+              "
+                            />
+                            <div className="absolute inset-0 bg-black/10 group-hover:bg-black/0 transition-colors duration-300" />
+                          </>
+                        ) : (
+                          <div className="text-slate-300 group-hover:text-white transition-colors duration-300 scale-110">
+                            {getCategoryIcon(category)}
+                          </div>
+                        )}
                       </div>
 
-                      <p className="text-xs font-medium text-slate-200 group-hover:text-white transition-colors duration-300 leading-snug line-clamp-2">
+                      {/* Name */}
+                      <p
+                        className="
+          text-[11px] sm:text-xs
+          font-medium
+          text-slate-200
+          group-hover:text-white
+          transition-colors duration-300
+          leading-snug
+          line-clamp-2
+          max-w-28
+        "
+                      >
                         {category.name}
                       </p>
                     </div>
 
                     {/* Corner Accent */}
-                    <div className="absolute top-0 right-0 w-14 h-14 bg-linear-to-br from-blue-500/20 to-transparent rounded-bl-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                    <div className="absolute top-0 right-0 h-12 w-12 bg-linear-to-br from-blue-500/20 to-transparent rounded-bl-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                   </div>
                 </button>
               );
