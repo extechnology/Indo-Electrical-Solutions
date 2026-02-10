@@ -201,7 +201,7 @@ const FilterPage: React.FC = () => {
     sort,
   ]);
 
-  const activeCount = filteredProducts.length;
+  // const activeCount = filteredProducts.length;
 
   const clearAll = () => {
     setSelectedCategory("All");
@@ -300,10 +300,10 @@ const FilterPage: React.FC = () => {
         {/* Title */}
         <div className="mt-2 flex items-end justify-between gap-4">
           <div>
-            <h1 className="text-2xl md:text-3xl font-medium tracking-tight capitalize">
+            {/* <h1 className="text-xl md:text-lg font-light tracking-tight capitalize">
               {pageTitle}{" "}
               <span className="text-white/60 text-sm">({activeCount})</span>
-            </h1>
+            </h1> */}
           </div>
         </div>
 

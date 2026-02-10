@@ -1,6 +1,9 @@
 import React, { useMemo } from "react";
 import { Link } from "react-router-dom";
 import { useLatestLaunch } from "../../hooks/useLatestLaunch";
+import { parseDescription } from "../../utils/parseDescription";
+import DescriptionModal from "./DescriptionModal";
+
 
 type LatestLaunchAPI = {
   id: number;
@@ -25,12 +28,19 @@ type LaunchCard = {
 const LatestLaunches: React.FC = () => {
   const { data: latestLaunches } = useLatestLaunch();
 
+  const [openDesc, setOpenDesc] = React.useState<{
+    title: string;
+    items: string[];
+  } | null>(null);
+
   // ✅ Convert API -> UI cards
+
   const cards: LaunchCard[] = useMemo(() => {
     const activeLaunches = (latestLaunches ?? []).filter(
       (x: LatestLaunchAPI) => x.is_active,
     );
 
+    console.log(activeLaunches, "active launch");
     return activeLaunches.map((item: LatestLaunchAPI, index: number) => ({
       id: item.id,
       title: item.title,
@@ -118,17 +128,45 @@ const LatestLaunches: React.FC = () => {
                   </p>
 
                   {/* Description */}
-                  {item.description && (
-                    <p
-                      className={`mt-3 text-sm font-semibold ${
-                        item.bgType === "light"
-                          ? "text-black/70"
-                          : "text-white/70"
-                      }`}
-                    >
-                      {item.description}
-                    </p>
-                  )}
+                  {item.description &&
+                    (() => {
+                      const points = parseDescription(item.description);
+                      const preview = points.slice(0, 2);
+                      const hasMore = points.length > 2;
+
+                      return (
+                        <div
+                          className={`mt-3 text-sm ${
+                            item.bgType === "light"
+                              ? "text-black/70"
+                              : "text-white/70"
+                          }`}
+                        >
+                          <ul className="space-y-1">
+                            {preview.map((point, i) => (
+                              <li key={i} className="flex gap-2">
+                                <span className="text-[#E02C2C]">•</span>
+                                <span>{point}</span>
+                              </li>
+                            ))}
+                          </ul>
+
+                          {hasMore && (
+                            <button
+                              onClick={() =>
+                                setOpenDesc({
+                                  title: item.title,
+                                  items: points,
+                                })
+                              }
+                              className="mt-2 inline-flex items-center gap-1 text-xs font-bold text-[#E02C2C] hover:underline"
+                            >
+                              View more →
+                            </button>
+                          )}
+                        </div>
+                      );
+                    })()}
 
                   {/* CTA */}
                   <Link
@@ -172,6 +210,13 @@ const LatestLaunches: React.FC = () => {
           )}
         </div>
       </div>
+      {openDesc && (
+        <DescriptionModal
+          title={openDesc.title}
+          items={openDesc.items}
+          onClose={() => setOpenDesc(null)}
+        />
+      )}
     </section>
   );
 };

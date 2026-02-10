@@ -14,7 +14,6 @@ type Slide = {
 const Hero: React.FC = () => {
   const { data: banners } = useBanners();
   const [activeIndex, setActiveIndex] = useState(0);
-  console.log(banners,"banners");
 
   const [isMobile, setIsMobile] = useState(false);
 
